@@ -1,0 +1,280 @@
+@font-face {
+    font-family: NotoSans; 
+    src: url(fonts/NotoSans/NotoSansJP-Medium.otf); 
+    font-size: 12px;
+}
+@font-face {
+    font-family: OpenSans; 
+    src: url(fonts/OpenSans/OpenSans-Italic.ttf); 
+    font-size: var(--main-font-size);
+}
+:root {
+    --main-font-size: 14px;
+    --primary-font-size: 0.7rem;
+    --main-bgcolor: #F2CE1B;
+    --primary-bgcolor: #B38F0E;
+}
+html {
+    max-width: 2000px;
+}
+.iconify {
+    width: calc(var(--main-font-size) * 2);
+    height: calc(var(--main-font-size) * 2);
+    color: var(--main-bgcolor);
+    padding-left: 1.5rem;
+    cursor: pointer;
+}
+button .iconify {
+    color:black;
+    margin: 0.3rem 1rem 0 0;
+}
+body {
+    font-family: NotoSans;
+    font-size: var(--main-font-size);
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    font-size: var(--main-font-size)
+}
+a {
+    font-family: NotoSans;
+    text-decoration: none;
+    color: black;   
+}
+i {
+    width: 10%;
+    height: 1.78%;
+    font-family: OpenSans;
+    font-style: normal;
+    font-weight: normal;
+    font-size: var(--primary-font-size);
+    color: #333333;
+    cursor: pointer;
+}
+header {
+    width:100%;
+    height:5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-bgcolor);
+}
+header a {
+    margin: auto;
+}
+button {
+    margin: 1rem;
+    background: var(--main-bgcolor);
+    border-radius: 65rem;
+    border: 0;
+    font-family: NotoSans;
+}
+button:hover, input:hover {
+    background: var(--primary-bgcolor);;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btns {
+    display: flex;
+    height: 10%;
+}
+.download{
+    margin: auto;
+    margin-left: 42%;
+    height: 50%;
+    width: 16rem;
+}
+.exit{
+    float: right;
+    display: flex;
+}
+.exit i {
+    margin: auto;
+    width: auto;
+}
+.exit button {
+    height: 50%;
+    width: 6rem;
+}
+.main-window {
+    width: 100%;
+    height: 79%;
+    display: inline-block;
+    display: flex;
+}
+.active-users {
+    width: 20%;
+    height: 100%; 
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+.user {
+    margin: 1rem auto .5rem .5rem;
+}
+.circle {
+    display: flex;
+    margin: auto 0;
+    float: left;
+    width: 3rem;
+    height: 3rem;
+    background-color: green;
+    border-radius:50%;
+    margin-right:1rem;
+    cursor: pointer;
+}
+.circle p {
+    margin:auto;
+    color:white;
+}
+.personal {
+    background-color: var(--main-bgcolor);
+    width: 1.5rem;
+    height: 1.5rem;
+}
+.chat {
+    width: 60%;
+    height: 100%;
+}
+.messages {
+    max-height: 85%;
+    padding: .75rem;
+    overflow: auto;
+}
+.full-message {
+    display: block;
+    float: left;
+    margin-bottom:-2rem;
+}
+.message {
+    margin: 1rem;
+    display: flex;
+    width: auto;
+}
+.message span {
+    margin-right: 1rem ;
+    padding: 1rem;
+    display: block;
+    background-color: var(--main-bgcolor);
+    border-radius: 1rem;
+    max-width: 25rem;
+}
+.message i {
+    margin: 0;
+    display: block;
+    width: auto;
+}
+.info {
+    margin: -1rem 0 1.5rem 5rem;
+}
+.my {
+    float: right;
+    margin-bottom:-2rem;
+}
+.icons {
+    margin: auto 1rem;
+}
+.my .info {
+    margin-left: 10rem;
+}
+.write-message {
+    display: flex;
+    margin-bottom: 0rem;
+    position: fixed;
+    left: 25%;
+    bottom: 6%;
+}
+.write-message input {
+    margin: auto;
+    width: 40rem;
+    height: 2.5rem;
+    background-color: var(--main-bgcolor);
+    border-radius: 2rem;
+    border: 0;
+}
+.send-btn {
+    width: 10%;
+    height: 2.5rem;  
+    padding-right: 5rem; 
+}
+::-webkit-input-placeholder { 
+    color: black;
+    font-family: NotoSans;
+    padding: 1rem;
+}
+.write-message button {
+    margin: 1rem auto;
+}
+.filter {
+    width: 20%;
+    height: 100%;
+    display: flex;
+}
+.options {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    width:100%;
+    height: 15rem;
+    align-items: center;
+    justify-content: center;
+}
+.choose-date input[type="date"] {
+    width: 10rem;
+}
+.options button, .options input {
+    margin: auto;
+    width: 10rem;
+    height: 3rem;
+    text-align: center;
+    background: var(--main-bgcolor);
+    border-radius: 65rem;
+    border: 0;
+    font-family: NotoSans;
+}
+footer {
+    width:100%;
+    height:5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-bgcolor);
+    position: fixed; 
+    left: 0; 
+    bottom: 0; 
+}
+footer a {
+    margin: auto;
+}
+@media (min-width: 720) and (min-width: 480){
+    :root {
+        --main-font-size: 7px;
+    }
+}
+@media (min-width: 1360px) and (min-width: 720px){
+    :root {
+        --main-font-size: 10px;
+    }
+}
+@media (min-width: 1440px), (min-height: 900px){
+    :root {
+        --main-font-size: 14px;
+    }
+}
+@media  (min-width: 1600px) and (min-width: 900px) {
+    :root {
+        --main-font-size: 12px;
+    }
+}
+@media  (min-width: 1920px) and (min-width: 1080px) {
+    :root {
+        --main-font-size: 14px;
+    }
+}
+@media  (min-width: 2560px) and (min-width: 1440px) {
+    :root {
+        --main-font-size: 14px;
+    }
+}
