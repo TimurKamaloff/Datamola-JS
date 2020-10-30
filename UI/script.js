@@ -341,7 +341,6 @@ messagesFunc.addMessage({
     id: '23',
   text: 'несколькими фильтрами',
   createdAt: new Date('1021-09-13T18:18:00'),
-  
   isPersonal: true,  
 });
 messagesFunc.addMessage({
