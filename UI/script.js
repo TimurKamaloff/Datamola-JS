@@ -30,6 +30,7 @@ const messages = [
         createdAt: new Date('2020-09-10T16:19:00'),
         author: 'user2login',
         isPersonal: true,
+        to: 'user4login'
     },    
     {
         id: '2',
@@ -44,6 +45,7 @@ const messages = [
         createdAt: new Date('2020-10-10T16:22:00'),
         author: 'user4login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '4',
@@ -51,6 +53,7 @@ const messages = [
         createdAt: new Date('2020-10-10T16:24:00'),
         author: 'user5login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '5',
@@ -72,6 +75,7 @@ const messages = [
         createdAt: new Date('2020-09-10T16:48:00'),
         author: 'user8login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '8',
@@ -93,6 +97,7 @@ const messages = [
         createdAt: new Date('2020-09-10T16:58:00'),
         author: 'user11login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '11',
@@ -121,6 +126,7 @@ const messages = [
         createdAt: new Date('2020-09-11T16:18:00'),
         author: 'user15login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '15',
@@ -142,6 +148,7 @@ const messages = [
         createdAt: new Date('2020-09-11T17:18:00'),
         author: 'user18login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '18',
@@ -163,6 +170,7 @@ const messages = [
         createdAt: new Date('2021-09-11T18:18:00'),
         author: 'user11login',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '21',
@@ -177,6 +185,7 @@ const messages = [
         createdAt: new Date('2021-09-13T18:18:00'),
         author: 'test1',
         isPersonal: true,
+        to: 'user4login'
     },
     {
         id: '23',
@@ -184,6 +193,7 @@ const messages = [
         createdAt: new Date('1021-09-13T18:18:00'),
         author: 'test1',
         isPersonal: true,
+        to: 'user4login'
     }
 ];
 
@@ -200,19 +210,8 @@ const messagesFunc = (function () {
                     if (messages[i].author.includes(filterConfig.author)) resultArr.push(messages[i]);
                 }
             }
-            if ('text' in filterConfig) {
-                if (resultArr.length === 0) {
-                    for (let i = 0; i < messages.length; i++) {
-                        if (messages[i].text.includes(filterConfig.text)) resultArr.push(messages[i]);
-                    }
-                }
-                else {
-                    for (let i = 0; i < resultArr.length; i++) {
-                        if (!resultArr[i].text.toLowerCase().includes(filterConfig.text.toLowerCase())) resultArr.splice(i,1)
-                    }
-                }
-            }
             if ('dateFrom' in filterConfig || 'dateTo' in filterConfig) {
+                if (Date.parse(filterConfig.dateFrom) > (Date.parse(filterConfig.dateTo))) return false;
                 filterConfig.dateFrom = filterConfig.dateFrom || new Date ('January 1, 1970 00:00:00');
                 filterConfig.dateTo = filterConfig.dateTo || new Date ('January 1, 2970 00:00:00');
                 if (resultArr.length === 0) {
@@ -223,14 +222,26 @@ const messagesFunc = (function () {
                     }   
                 }
                 else {
+                    console.log('not empty');
                     for (let i = 0; i < resultArr.length; i++) {
-                        if (!(Date.parse(resultArr[i].createdAt) > Date.parse(filterConfig.dateFrom)) || (Date.parse(resultArr[i].createdAt) < Date.parse(filterConfig.dateTo))) {
-                            resultArr.splice(i,1)
-                        }
+                        if ((Date.parse(resultArr[i].createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(messages[i].createdAt) < Date.parse(filterConfig.dateTo))) resultArr.splice(i,1);
                     }
                 }
 
             }
+            if ('text' in filterConfig) {
+                if (resultArr.length === 0) {
+                    for (let i = 0; i < messages.length; i++) {
+                        if (messages[i].text.includes(filterConfig.text)) resultArr.push(messages[i]);
+                    }
+                }
+                else {
+                    for (let i = 0; i < resultArr.length; i++) {
+                        if (!resultArr[i].text.toLowerCase().includes(filterConfig.text.toLowerCase())) resultArr.splice(i,1);
+                    }
+                }
+            }
+
             resultArr.sort((a,b) => {
                 return (Date.parse(b.createdAt)-Date.parse(a.createdAt));
             });
@@ -307,10 +318,11 @@ messagesFunc.getMessages(-10,-10000);
 messagesFunc.getMessages(1,10);
 messagesFunc.getMessages();
 messagesFunc.getMessages({text:'то', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
+messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2021-01-11T18:18:00", dateFrom: '2020-09-11T18:18:00'});
+messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2021-01-11T18:18:00", dateFrom: '2020-09-11T18:18:00'});
 messagesFunc.getMessages({text:'такого текста точно нет', author:'user15login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
 //////////////////////////////////////////////////////////////
+messagesFunc.getMessage('23');
 messagesFunc.getMessage('23fa');
 messagesFunc.getMessage('afa');
 messagesFunc.getMessage('-5235af');
