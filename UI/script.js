@@ -1,20 +1,23 @@
-// const counter = (function () {
-//     let count = 0;
-//     function nextCount () {
-//         return ++count;
-//     }
-//     function dropCount () {
-//         count=0;
-//     }
-//     function getCount () {
-//         return count;
-//     }
-//     return {
-//         next:nextCount,
-//         init:dropCount,
-//         get:getCount
-//     }
-// })();
+const addModule = (function () {
+    let count = 24; // потому что последний id  в объекте 23
+    let currentAuthor = 'автор';
+    function nextCount () {
+        return ++count;
+    }
+    function dropCount () {
+        count=0;
+    }
+    function getCount () {
+        return count;
+    }
+
+    return {
+        next:nextCount,
+        init:dropCount,
+        get:getCount,
+        currentAuthor
+    }
+})();
 const messages = [
     {
         id: '0',
@@ -296,12 +299,19 @@ const messagesFunc = (function () {
     }
     function addMessage (msg) {
         if (arguments[0] === undefined) return false;
-        if (validateMessage(msg)) {
-            messages.push(msg);
-            console.log(messages);
-            return true;
+        let newMsg = {};
+        newMsg.id = `${addModule.next()}`;
+        for (let key in msg) {
+            if (key !== 'id' && key !== 'createdAt' && key !== 'author'){
+                if (key === 'text' && msg[key].length < 200) newMsg[key] = msg[key];
+                else return false
+            } 
         }
-        return false
+        newMsg.createdAt = new Date();
+        newMsg.author = addModule.currentAuthor;
+        messages.push(newMsg);
+        console.log(messages);
+        return true;
     };
     function editMessage (id, msg = {}) {
         let newMsg = Object.assign({}, getMessage(id));
@@ -366,24 +376,24 @@ messagesFunc.validateMessage({
     isPersonal: false,
 });
 //////////////////////////////////////////////////////////////
-messagesFunc.addMessage({
-    id: '23',
-  text: 'несколькими фильтрами',
-  createdAt: new Date('1021-09-13T18:18:00'),
-  isPersonal: true,  
-});
-messagesFunc.addMessage({
-    id: '23',
-  text: 'несколькими фильтрами',
-  createdAt: new Date('1021-09-13T18:18:00'),
-  author : '123123',
-  isPersonal: true,  
-});
-messagesFunc.addMessage({
-    id: '23'  
-});
-messagesFunc.addMessage();
-messagesFunc.addMessage({});
+// messagesFunc.addMessage({
+//     id: '23',
+//   text: 'несколькими фильтрами',
+//   createdAt: new Date('1021-09-13T18:18:00'),
+//   isPersonal: true,  
+// });
+// messagesFunc.addMessage({
+//     id: '23',
+//   text: 'несколькими фильтрами',
+//   createdAt: new Date('1021-09-13T18:18:00'),
+//   author : '123123',
+//   isPersonal: true,  
+// });
+// messagesFunc.addMessage({
+//     id: '23'  
+// });
+// messagesFunc.addMessage();
+// messagesFunc.addMessage({});
 //////////////////////////////////////////////////////////////
 messagesFunc.editMessage(2,{
     text : '123131312',
