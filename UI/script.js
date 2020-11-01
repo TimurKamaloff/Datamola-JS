@@ -15,7 +15,6 @@
 //         get:getCount
 //     }
 // })();
-
 const messages = [
     {
         id: '0',
@@ -200,52 +199,70 @@ const messages = [
 const messagesFunc = (function () {
 
     function getMessages (skip = 0, top = 10, filterConfig = 'date') {
-        if (skip < 0) skip = 0;
-        if (top < 0) top = 10;
         let resultArr = [];
-        if (typeof(arguments[0])==='object') filterConfig = arguments[0];
+        let isEmpty = true; // флаг того, что resultArr побывал на какой-либо из фильтраций, 
+        if (typeof(arguments[0])==='object') {  // т.к. после фильтрации может не найтись подходящих сообщ и тогда нужно делать return сразу
+            filterConfig = arguments[2];
+        }
+        console.log (skip + '   ' + top);
         if (typeof(filterConfig)==='object') {
             if ('author' in filterConfig) {
+                isEmpty = false;
                 for (let i = 0; i < messages.length; i++) {
-                    if (messages[i].author.includes(filterConfig.author)) resultArr.push(messages[i]);
+                    if (messages[i].author.includes(filterConfig.author)) {
+                        resultArr.push(messages[i]);
+                    }
                 }
+                if (!isEmpty && resultArr.length === 0) return false; // массив побывал на фильтрации и подходящих сообщ нет - return false 
             }
-            if ('dateFrom' in filterConfig || 'dateTo' in filterConfig) {
-                if (Date.parse(filterConfig.dateFrom) > (Date.parse(filterConfig.dateTo))) return false;
-                filterConfig.dateFrom = filterConfig.dateFrom || new Date ('January 1, 1970 00:00:00');
-                filterConfig.dateTo = filterConfig.dateTo || new Date ('January 1, 2970 00:00:00');
-                if (resultArr.length === 0) {
+            if (('dateFrom' in filterConfig || 'dateTo' in filterConfig)) {
+                isEmpty = false;
+                if (Date.parse(filterConfig.dateFrom) > (Date.parse(filterConfig.dateTo))) return false; // некорректный ввод даты
+                filterConfig.dateFrom = filterConfig.dateFrom || new Date ('January 1, 1970 00:00:00'); // дефолтные значения, можно написать и в аргументы,
+                filterConfig.dateTo = filterConfig.dateTo || new Date ('January 1, 2970 00:00:00'); // но пускай будут тут
+                if (resultArr.length === 0) { // проверка на то, что массив попал на первую фильтрацию
                     for (let i = 0; i < messages.length; i++) {
                         if ((Date.parse(messages[i].createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(messages[i].createdAt) < Date.parse(filterConfig.dateTo))) {
                             resultArr.push(messages[i]);
                         }
                     }   
+                    if (!isEmpty && resultArr.length === 0) return false;
                 }
                 else {
-                    console.log('not empty');
                     for (let i = 0; i < resultArr.length; i++) {
-                        if ((Date.parse(resultArr[i].createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(messages[i].createdAt) < Date.parse(filterConfig.dateTo))) resultArr.splice(i,1);
+                        let date = Date.parse(resultArr[i].createdAt);
+                        if ((date > Date.parse(filterConfig.dateTo) || date < Date.parse(filterConfig.dateFrom))) { 
+                            resultArr.splice(i,1);
+                            i = -1; // на всякий случай после каждого удаления цикл пойдёт с 0
+                        }
                     }
+                    if (!isEmpty && resultArr.length === 0) return false;
                 }
 
             }
             if ('text' in filterConfig) {
-                if (resultArr.length === 0) {
+                if (resultArr.length === 0) { 
                     for (let i = 0; i < messages.length; i++) {
                         if (messages[i].text.includes(filterConfig.text)) resultArr.push(messages[i]);
                     }
+                    if (!isEmpty && resultArr.length === 0) return false;
                 }
-                else {
+                else { 
                     for (let i = 0; i < resultArr.length; i++) {
-                        if (!resultArr[i].text.toLowerCase().includes(filterConfig.text.toLowerCase())) resultArr.splice(i,1);
+                        let text = resultArr[i].text.toLowerCase();
+                        let wantedText = filterConfig.text.toLowerCase();
+                        if (!text.includes(wantedText)) {
+                            resultArr.splice(i,1); 
+                            i = -1;
+                        }
+                        if (!isEmpty && resultArr.length === 0) return false;
                     }
                 }
             }
-
             resultArr.sort((a,b) => {
                 return (Date.parse(b.createdAt)-Date.parse(a.createdAt));
             });
-            return resultArr;
+            return resultArr.slice(skip, (skip+top));
         }
         else {
             messages.sort((a,b) => {
@@ -261,7 +278,7 @@ const messagesFunc = (function () {
     function getMessage (id) {
         if (id ==='' || Number(id) < 0) return false;
         for (let key in messages) {
-            if (messages[key].id == id) return messages[key];
+            if (messages[key].id === id) return messages[key];
         }
     };
     function validateMessage(msg) {
@@ -320,7 +337,7 @@ messagesFunc.getMessages();
 messagesFunc.getMessages({text:'то', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
 messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2021-01-11T18:18:00", dateFrom: '2020-09-11T18:18:00'});
 messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2021-01-11T18:18:00", dateFrom: '2020-09-11T18:18:00'});
-messagesFunc.getMessages({text:'такого текста точно нет', author:'user15login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
+messagesFunc.getMessages({text:'такого текста точно нет', author:'user15login', dateTo:"2021-01-11T18:18:00", dateFrom: '2020-09-11T18:18:00'});
 //////////////////////////////////////////////////////////////
 messagesFunc.getMessage('23');
 messagesFunc.getMessage('23fa');

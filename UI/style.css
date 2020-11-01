@@ -30,6 +30,10 @@ button .iconify {
     color:black;
     margin: 0.3rem 1rem 0 0;
 }
+button, .iconify, input {
+    outline: none;
+}
+
 body {
     font-family: NotoSans;
     font-size: var(--main-font-size);
