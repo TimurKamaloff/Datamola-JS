@@ -10,7 +10,6 @@ const addModule = (function () {
     function getCount () {
         return count;
     }
-
     return {
         next:nextCount,
         init:dropCount,
@@ -196,6 +195,22 @@ const messages = [
         author: 'test1',
         isPersonal: true,
         to: 'user4login'
+    },
+    {
+        id: `${addModule.next()}`,
+        text: 'тест toLowerCase() для авторов   ',
+        createdAt: new Date('2022-09-13T18:18:00'),
+        author: 'USER1111',
+        isPersonal: true,
+        to: 'user4login'
+    },
+    {
+        id: `${addModule.next()}`,
+        text: 'ТЕСТ toLowerCase() для текста   ',
+        createdAt: new Date('2022-09-13T18:18:00'),
+        author: 'CAPS_TEXT',
+        isPersonal: true,
+        to: 'user4login'
     }
 ];
 
@@ -207,12 +222,14 @@ const messagesFunc = (function () {
         if (typeof(arguments[0])==='object') {  // т.к. после фильтрации может не найтись подходящих сообщ и тогда нужно делать return сразу
             filterConfig = arguments[2];
         }
-        console.log (skip + '   ' + top);
         if (typeof(filterConfig)==='object') {
             if ('author' in filterConfig) {
                 isEmpty = false;
+                let wantedAuthor = filterConfig[`author`].toLowerCase();
+                console.log(wantedAuthor);
                 for (let i = 0; i < messages.length; i++) {
-                    if (messages[i].author.includes(filterConfig.author)) {
+                    let author = messages[i].author.toLowerCase();
+                    if (author.includes(wantedAuthor)) {
                         resultArr.push(messages[i]);
                     }
                 }
@@ -246,7 +263,9 @@ const messagesFunc = (function () {
             if ('text' in filterConfig) {
                 if (resultArr.length === 0) { 
                     for (let i = 0; i < messages.length; i++) {
-                        if (messages[i].text.includes(filterConfig.text)) resultArr.push(messages[i]);
+                        let text = messages[i].text.toLowerCase();
+                        let wantedText = filterConfig.text.toLowerCase();
+                        if (text.includes(wantedText)) resultArr.push(messages[i]);
                     }
                     if (!isEmpty && resultArr.length === 0) return false;
                 }
@@ -283,6 +302,7 @@ const messagesFunc = (function () {
         for (let key in messages) {
             if (messages[key].id === id) return messages[key];
         }
+        return false;
     };
     function validateMessage(msg) {
         if (arguments[0] === undefined) return false;
@@ -310,7 +330,6 @@ const messagesFunc = (function () {
         newMsg.createdAt = new Date();
         newMsg.author = addModule.currentAuthor;
         messages.push(newMsg);
-        console.log(messages);
         return true;
     };
     function editMessage (id, msg = {}) {
@@ -330,12 +349,22 @@ const messagesFunc = (function () {
         console.log('false')
         return false;
     };
+    function removeMessage (id) {
+        for (let i = 0; i < messages.length; i++) {
+            if (messages[i].id == id) {
+                messages.splice(i,1);
+                return true;
+            }
+        }
+        return false;
+    }
     return {
         getMessages,
         getMessage,
         validateMessage,
         addMessage,
-        editMessage
+        editMessage,
+        removeMessage
     }
 })();
 
