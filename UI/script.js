@@ -1,365 +1,398 @@
-// const counter = (function () {
-//     let count = 0;
-//     function nextCount () {
-//         return ++count;
-//     }
-//     function dropCount () {
-//         count=0;
-//     }
-//     function getCount () {
-//         return count;
-//     }
-//     return {
-//         next:nextCount,
-//         init:dropCount,
-//         get:getCount
-//     }
-// })();
+const addModule = (function () {
+  let count = 16; // потому что последний id  в объекте 23
+  let currentAuthor = 'автор';
+  let currentRecipient = 'получатель';
+  function nextCount() {
+    return ++count;
+  }
+  function dropCount() {
+    count = 0;
+  }
+  function getCount() {
+    return count;
+  }
+  return {
+    next: nextCount,
+    init: dropCount,
+    get: getCount,
+    currentAuthor,
+    currentRecipient
+  };
+}());
 
-const messages = [
-    {
-        id: '0',
-        text: 'Как уже ясно из названия, цель',
-        createdAt: new Date('2020-09-10T16:18:00'),
-        author: 'user1login',
-        isPersonal: false,
-    },
-    {
-        id: '1',
-        text: 'такого материала – максимально',
-        createdAt: new Date('2020-09-10T16:19:00'),
-        author: 'user2login',
-        isPersonal: true,
-    },    
-    {
-        id: '2',
-        text: 'полно информировать пользователя',
-        createdAt: new Date('2020-09-10T16:20:00'),
-        author: 'user3login',
-        isPersonal: false,
-    },
-    {
-        id: '3',
-        text: 'о том, что представляет',
-        createdAt: new Date('2020-10-10T16:22:00'),
-        author: 'user4login',
-        isPersonal: true,
-    },
-    {
-        id: '4',
-        text: 'собой конкретный сайт.',
-        createdAt: new Date('2020-10-10T16:24:00'),
-        author: 'user5login',
-        isPersonal: true,
-    },
-    {
-        id: '5',
-        text: 'Естественно, материал также может',
-        createdAt: new Date('2020-10-10T16:30:00'),
-        author: 'user6login',
-        isPersonal: false,
-    },
-    {
-        id: '6',
-        text: 'быть оптимизирован, но чаще',
-        createdAt: new Date('2020-09-10T16:35:00'),
-        author: 'user7login',
-        isPersonal: false,
-    },
-    {
-        id: '7',
-        text: 'это все-таки какая-то щадящая оптимизация.',
-        createdAt: new Date('2020-09-10T16:48:00'),
-        author: 'user8login',
-        isPersonal: true,
-    },
-    {
-        id: '8',
-        text: 'То есть без многократного повторения',
-        createdAt: new Date('2020-11-10T16:49:00'),
-        author: 'user9login',
-        isPersonal: false,
-    },
-    {
-        id: '9',
-        text: 'одних и тех же ключей ',
-        createdAt: new Date('2020-09-10T16:50:00'),
-        author: 'user10login',
-        isPersonal: false,
-    },
-    {
-        id: '10',
-        text: 'текст',
-        createdAt: new Date('2020-09-10T16:58:00'),
-        author: 'user11login',
-        isPersonal: true,
-    },
-    {
-        id: '11',
-        text: '(особенно сложных)',
-        createdAt: new Date('2020-11-10T17:18:00'),
-        author: 'user12login',
-        isPersonal: false,
-    },
-    {
-        id: '12',
-        text: 'которые слишком уж убивают читабельность материала.',
-        createdAt: new Date('2020-09-10T17:19:00'),
-        author: 'user13login',
-        isPersonal: false,
-    },
-    {
-        id: '13',
-        text: 'Преимущество информационных текстов',
-        createdAt: new Date('2020-11-10T17:28:00'),
-        author: 'user14login',
-        isPersonal: false,
-    },
-    {
-        id: '14',
-        text: 'на главной странице в том, ',
-        createdAt: new Date('2020-09-11T16:18:00'),
-        author: 'user15login',
-        isPersonal: true,
-    },
-    {
-        id: '15',
-        text: 'то они содержат реально полезную информацию,',
-        createdAt: new Date('2020-12-11T16:28:00'),
-        author: 'user16login',
-        isPersonal: false,
-    },
-    {
-        id: '16',
-        text: 'текст',
-        createdAt: new Date('2020-09-11T16:38:00'),
-        author: 'user17login',
-        isPersonal: false,
-    },
-    {
-        id: '17',
-        text: 'а не стандартный набор штампов',
-        createdAt: new Date('2020-09-11T17:18:00'),
-        author: 'user18login',
-        isPersonal: true,
-    },
-    {
-        id: '18',
-        text: 'для сокрытия ключевых запросов.',
-        createdAt: new Date('2021-09-11T17:28:00'),
-        author: 'user19login',
-        isPersonal: false,
-    },
-    {
-        id: '19',
-        text: 'Поскольку информация по-настоящему полезна, ',
-        createdAt: new Date('2020-09-11T17:38:00'),
-        author: 'user20login',
-        isPersonal: false,
-    },
-    {
-        id: '20',
-        text: 'читатели задерживаются на главной странице',
-        createdAt: new Date('2021-09-11T18:18:00'),
-        author: 'user11login',
-        isPersonal: true,
-    },
-    {
-        id: '21',
-        text: 'Объекты для теста случаев с',
-        createdAt: new Date('2020-09-12T17:38:00'),
-        author: 'test1',
-        isPersonal: false,
-    },
-    {
-        id: '22',
-        text: 'несколькими фильтрами',
-        createdAt: new Date('2021-09-13T18:18:00'),
-        author: 'test1',
-        isPersonal: true,
-    },
-    {
-        id: '23',
-        text: 'несколькими фильтрами',
-        createdAt: new Date('1021-09-13T18:18:00'),
-        author: 'test1',
-        isPersonal: true,
+class Message {
+  constructor(options) {
+    this._id = options.id;
+    this.text = options.text;
+    this._createdAt = options.createdAt;
+    this._author = options.author;
+    this.isPersonal = options.isPersonal;
+    this.to = options.to || null;
+  }
+
+  get id() {
+    return this._id;
+  }
+
+  get createdAt() {
+    return this._createdAt;
+  }
+
+  get author() {
+    return this._author;
+  }
+
+  set id(newId) {
+    return false;
+  }
+
+  set createdAt(newCreatedAt) {
+    return false;
+  }
+
+  set author(newAuthor) {
+    return false;
+  }
+}
+
+class MessageList {
+  constructor(msgs) {
+    this._collection = msgs;
+    this._user = 'author #3';
+    this._msgs = msgs;
+  }
+
+  get user() {
+    return this._user;
+  }
+
+  set user(value) {
+    return false;
+  }
+
+  getPage(skip = 0, top = 10, filterConfig = {}) {
+    let resultArr = [];
+    let isEmpty = true; // флаг того, что resultArr побывал на какой-либо из фильтраций,
+    if (Object.keys(filterConfig).length === 0) {
+      this._msgs.sort((a, b) => {
+        return (Date.parse(b.createdAt) - Date.parse(a.createdAt));
+      });
+      for (let i = skip; (resultArr.length < top || i < top); i++) {
+        if (this._msgs[i] === undefined) break;
+        if (!((this._msgs[i].isPersonal === true && this._msgs[i].to !== this._user) || (resultArr.length > top - 1))) {
+          resultArr.push(this._msgs[i]);
+        }
+      }
+      return resultArr;
     }
-];
 
-const messagesFunc = (function () {
-
-    function getMessages (skip = 0, top = 10, filterConfig = 'date') {
-        if (skip < 0) skip = 0;
-        if (top < 0) top = 10;
-        let resultArr = [];
-        if (typeof(arguments[0])==='object') filterConfig = arguments[0];
-        if (typeof(filterConfig)==='object') {
-            if ('author' in filterConfig) {
-                for (let i = 0; i < messages.length; i++) {
-                    if (messages[i].author.includes(filterConfig.author)) resultArr.push(messages[i]);
-                }
-            }
-            if ('text' in filterConfig) {
-                if (resultArr.length === 0) {
-                    for (let i = 0; i < messages.length; i++) {
-                        if (messages[i].text.includes(filterConfig.text)) resultArr.push(messages[i]);
-                    }
-                }
-                else {
-                    for (let i = 0; i < resultArr.length; i++) {
-                        if (!resultArr[i].text.toLowerCase().includes(filterConfig.text.toLowerCase())) resultArr.splice(i,1)
-                    }
-                }
-            }
-            if ('dateFrom' in filterConfig || 'dateTo' in filterConfig) {
-                filterConfig.dateFrom = filterConfig.dateFrom || new Date ('January 1, 1970 00:00:00');
-                filterConfig.dateTo = filterConfig.dateTo || new Date ('January 1, 2970 00:00:00');
-                if (resultArr.length === 0) {
-                    for (let i = 0; i < messages.length; i++) {
-                        if ((Date.parse(messages[i].createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(messages[i].createdAt) < Date.parse(filterConfig.dateTo))) {
-                            resultArr.push(messages[i]);
-                        }
-                    }   
-                }
-                else {
-                    for (let i = 0; i < resultArr.length; i++) {
-                        if (!(Date.parse(resultArr[i].createdAt) > Date.parse(filterConfig.dateFrom)) || (Date.parse(resultArr[i].createdAt) < Date.parse(filterConfig.dateTo))) {
-                            resultArr.splice(i,1)
-                        }
-                    }
-                }
-
-            }
-            resultArr.sort((a,b) => {
-                return (Date.parse(b.createdAt)-Date.parse(a.createdAt));
-            });
-            return resultArr;
+    if ('author' in filterConfig) {
+      isEmpty = false;
+      let wantedAuthor = filterConfig.author.toLowerCase();
+      for (let i = 0; i < this._msgs.length; i++) {
+        let author = this._msgs[i].author.toLowerCase();
+        if (author.includes(wantedAuthor)) {
+          resultArr.push(this._msgs[i]);
         }
-        else {
-            messages.sort((a,b) => {
-                return (Date.parse(b.createdAt)-Date.parse(a.createdAt));
-            });
-            for (let i = skip; i < (top + skip); i++) {
-                if (messages[i]===undefined) break
-                resultArr.push(messages[i]);
-            }
-            return resultArr;
-        }
-    };
-    function getMessage (id) {
-        if (id ==='' || Number(id) < 0) return false;
-        for (let key in messages) {
-            if (messages[key].id == id) return messages[key];
-        }
-    };
-    function validateMessage(msg) {
-        if (arguments[0] === undefined) return false;
-        let propsObj = {
-            id : 'string',
-            text : 'string',
-            createdAt : 'object',
-            author : 'string'
-        }
-        for (let key in propsObj) {
-            if (!(key in msg)  || typeof(msg[key])!==propsObj[key]) return false
-        }
-        return true;
-    }
-    function addMessage (msg) {
-        if (arguments[0] === undefined) return false;
-        if (validateMessage(msg)) {
-            messages.push(msg);
-            console.log(messages);
-            return true;
-        }
-        return false
-    };
-    function editMessage (id, msg = {}) {
-        let newMsg = Object.assign({}, getMessage(id));
-        for (let key in newMsg) {
-            if (key !== '' && key in msg) newMsg[key] = msg[key];
-        }
-        console.log(newMsg);
-        console.log(getMessage(id));
-        console.log(validateMessage(newMsg));
-        if (validateMessage(newMsg)){
-            for (let key in msg) {
-                if (key !== 'id' && key !== 'author' && key !== 'createdAt') getMessage(id)[key] = msg[key];
-            }
-            return true;
-        } 
-        console.log('false')
+      }
+      if (resultArr.length === 0) {
         return false;
-    };
-    return {
-        getMessages,
-        getMessage,
-        validateMessage,
-        addMessage,
-        editMessage
+      }
+      // массив побывал на фильтрации и подходящих сообщ нет - return false
     }
-})();
+    if (('dateFrom' in filterConfig || 'dateTo' in filterConfig)) {
+      isEmpty = false;
+      if (Date.parse(filterConfig.dateFrom) > (Date.parse(filterConfig.dateTo))) return false; // некорректный ввод даты
+      filterConfig.dateFrom = filterConfig.dateFrom || new Date('January 1, 1970 00:00:00'); // дефолтные значения, можно написать и в аргументы,
+      filterConfig.dateTo = filterConfig.dateTo || new Date('January 1, 2970 00:00:00'); // но пускай будут тут
+      if (resultArr.length === 0) { // проверка на то, что массив попал на первую фильтрацию
+        for (let i = 0; i < this._msgs.length; i++) {
+          if ((Date.parse(this._msgs[i].createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(this._msgs[i].createdAt) < Date.parse(filterConfig.dateTo))) {
+            resultArr.push(this._msgs[i]);
+          }
+        }
+        if (!isEmpty && resultArr.length === 0) return false;
+      } else {
+        let length = resultArr.length;
+        for (let i = 0; i < length; i++) {
+          if (resultArr[i] === undefined) {
+            break;
+          }
+          let date = Date.parse(resultArr[i].createdAt);
+          if ((date > Date.parse(filterConfig.dateTo) || date < Date.parse(filterConfig.dateFrom))) {
+            resultArr.splice(i, 1);
+            if (resultArr.length === 1) {
+              i = 0; // тут был очень неприятный баг : если все сообщ НЕ подходят по дате, то все удаляются кроме самого первого, пришлось делать такой костыль
+              if ((date > Date.parse(filterConfig.dateTo) || date < Date.parse(filterConfig.dateFrom))) resultArr.splice(i, 1);
+            }
+            i = -1; // на всякий случай после каждого удаления цикл пойдёт с 0
+          }
+        }
+        if (!isEmpty && resultArr.length === 0) return false;
+      }
+    }
+    if ('text' in filterConfig) {
+      if (resultArr.length === 0) {
+        for (let i = 0; i < this._msgs.length; i++) {
+          let text = this._msgs[i].text.toLowerCase();
+          let wantedText = filterConfig.text.toLowerCase();
+          if (text.includes(wantedText)) resultArr.push(this._msgs[i]);
+        }
+        if (!isEmpty && resultArr.length === 0) return false;
+      } else {
+        for (let i = 0; i < resultArr.length; i++) {
+          let text = resultArr[i].text.toLowerCase();
+          let wantedText = filterConfig.text.toLowerCase();
+          if (!text.includes(wantedText)) {
+            resultArr.splice(i, 1);
+            i = -1;
+          }
+          if (!isEmpty && resultArr.length === 0) return false;
+        }
+      }
+    }
+    resultArr.sort((a, b) => {
+      return (Date.parse(b.createdAt) - Date.parse(a.createdAt));
+    });
+    let lastRes = []; // новая переменная для отборки только общих сообщ или ЛС для _user
+    for (let i = skip; i < resultArr.length; i++) {
+      if (this._msgs[i] === undefined || lastRes.length > top) {
+        break;
+      }
+      if (this._msgs[i].isPersonal && this._msgs[i].to !== this._user) {
+        continue;
+      } else if (MessageList._validate(resultArr[i])) {
+        lastRes.push(resultArr[i]);
+      }
+    }
+    return lastRes;
+  }
 
+  get(id = '') {
+    if (id === '' || Number(id) < 0) return false;
+    Object.keys(this._msgs).forEach(function (key) {
+      if (this._msgs[key].id === id) return this._msgs[key];
+    });
+    return false;
+  }
 
-messagesFunc.getMessages(0,10, {text:'то', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-messagesFunc.getMessages(-10,-10000);
-messagesFunc.getMessages(1,10);
-messagesFunc.getMessages();
-messagesFunc.getMessages({text:'то', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-messagesFunc.getMessages({text:'то', author:'user16login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-messagesFunc.getMessages({text:'такого текста точно нет', author:'user15login', dateTo:"2020-01-11T18:18:00", dateFrom: '2021-09-11T18:18:00'});
-//////////////////////////////////////////////////////////////
-messagesFunc.getMessage('23fa');
-messagesFunc.getMessage('afa');
-messagesFunc.getMessage('-5235af');
-messagesFunc.getMessage('-5235');
-//////////////////////////////////////////////////////////////
-messagesFunc.validateMessage({
-    id: '123',
-    text: 'Поскольку информация по-настоящему полезна, ',
-    createdAt: new Date('2020-09-11T17:38:00'),
-    isPersonal: false,
-});
-messagesFunc.validateMessage({
-    id: '123',
-    text: 'Поскольку информация по-настоящему полезна, ',
-    createdAt: new Date('2020-09-11T17:38:00'),
-    author: 'test1',
-    isPersonal: false,
-});
-messagesFunc.validateMessage({
-    id: '123',
-    text: 'Поскольку информация по-настоящему полезна, ',
-    createdAt: new Date('2020-09-11T17:38:00'),
-    author: 'test1',
-    isPersonal: false,
-});
-//////////////////////////////////////////////////////////////
-messagesFunc.addMessage({
-    id: '23',
-  text: 'несколькими фильтрами',
-  createdAt: new Date('1021-09-13T18:18:00'),
-  
-  isPersonal: true,  
-});
-messagesFunc.addMessage({
-    id: '23',
-  text: 'несколькими фильтрами',
-  createdAt: new Date('1021-09-13T18:18:00'),
-  author : '123123',
-  isPersonal: true,  
-});
-messagesFunc.addMessage({
-    id: '23'  
-});
-messagesFunc.addMessage();
-messagesFunc.addMessage({});
-//////////////////////////////////////////////////////////////
-messagesFunc.editMessage(2,{
-    text : '123131312',
-    id : '213'
-});
-messagesFunc.editMessage(2,{});
-messagesFunc.editMessage(2);
+  add(msg = {}) {
+    if (arguments[0] === undefined || myMsgList.user === undefined) return false;
+    // автризован ли пользователь и может ли он писать сообщ
+    for (let i = 0; i < this._msgs.length; i++) {
+      if (!myMsgList.user) {
+        return false;
+      }
+    }
+    let newMsg = {};
+    newMsg.id = `${addModule.next()}`;
+    Object.keys(msg).forEach(function (key) {
+      if (key !== 'id' && key !== 'createdAt' && key !== 'author') {
+        switch (key) {
+          case ('text'): {
+            if (msg[key].length < 200) newMsg[key] = msg[key]; break;
+          }
+          case ('isPersonal'): {
+            if (msg[key]) {
+              newMsg[key] = true;
+              if (!MessageList._user) console.log(false);
+              newMsg.to = 'Какой-то пользователь';
+            }
+            break;
+          }
+          case ('to'): {
+            console.log('to');
+            newMsg.isPersonal = true;
+            newMsg.to = msg.to;
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+      }
+    });
+    newMsg.createdAt = new Date();
+    newMsg.author = this._user;
+    this._msgs.push(new Message(newMsg));
+    return true;
+  }
+
+  edit(id = '', msg = {}) {
+    if (id === '' || Number(id) < 0 || arguments[0] === undefined) return false;
+    let newMsg = {};
+    // Проверка на то, что пользователь является автором этого сообщ и может его редачит
+    for (let i = 0; i < this._msgs.length; i++) {
+      if (this._msgs[i].id === id && this._msgs[i].author !== myMsgList.user) {
+        return false;
+      }
+    }
+    Object.keys(msg).forEach(function (key) {
+      if (key !== 'id' && key !== 'createdAt' && key !== 'author') {
+        switch (key) {
+          case ('text'): {
+            if (msg[key].length < 200) newMsg[key] = msg[key]; break;
+          }
+          case ('isPersonal'): {
+            if (msg[key]) {
+              newMsg[key] = true;
+              newMsg.to = addModule.currentRecipient;
+              break;
+            }
+          }
+          default: {
+            break;
+          }
+        }
+      }
+    });
+    for (let i = 0; i < this._msgs.length; i++) {
+      if (this._msgs[i].id === id) {
+        let msg = this._msgs[i];
+        Object.keys(newMsg).forEach(function (key) {
+          msg[key] = newMsg[key];
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+
+  remove(id = '') {
+    if (id === '' || Number(id) < 0) return false;
+    // та же проверка что и в edit
+    for (let i = 0; i < this._msgs.length; i++) {
+      if (this._msgs[i].id === id && this._msgs[i].author !== myMsgList.user) {
+        console.log(myMsgList.user);
+        console.log(this._msgs[i].author !== myMsgList.user);
+        return false;
+      }
+    }
+    for (let i = 0; i < this._msgs.length; i++) {
+      if (this._msgs[i].id === id) {
+        this._msgs.splice(i, 1);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static _validate(msg = {}) {
+    if (Object.keys(msg).length === 0) return false;
+    let exampleMsg = {
+      id: '',
+      text: '',
+      createdAt: new Date(),
+      author: '',
+      isPersonal: true
+    };
+    // eslint ругается на этот цикл, но с заменой его через Object.keys появляется баг,
+    for (let key in exampleMsg) { //  когда отоборажаются ненужные для пользователя сообщение (isPersonal === true)
+      if (!(key in msg) || (typeof (exampleMsg[key]) !== typeof (msg[key]))) return false;
+    }
+    return true;
+  }
+
+  static addAll(arrMsg) {
+    let invalidMsg = [];
+    let myCollect = [];
+    for (let i = 0; i < arrMsg.length; i++) {
+      if (MessageList._validate(arrMsg[i])) {
+        myCollect.push(arrMsg[i]);
+      } else {
+        invalidMsg.push(arrMsg[i]);
+      }
+    }
+    this.collection = myCollect;
+    return invalidMsg;
+  }
+
+  static clear() {
+    this.collection = null;
+    return true;
+  }
+}
+
+let msgs = [
+  new Message({
+    id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'author #0', isPersonal: false
+  }),
+  new Message({
+    id: '2', text: 'такого материала – максимально', createdAt: new Date('2020-09-11T16:18:00'), author: 'author #1', isPersonal: false
+  }),
+  new Message({
+    id: '3', text: 'полно информировать пользователя', createdAt: new Date('2020-09-11T17:18:00'), author: 'author #2', isPersonal: false
+  }),
+  new Message({
+    id: '4', text: 'afawfs', createdAt: new Date('2020-09-11T16:19:00'), author: 'author #3', isPersonal: true, to: 'author #199'
+  }),
+  new Message({
+    id: '5', text: 'afawfs', createdAt: new Date('2020-09-05T16:18:00'), author: 'author #4', isPersonal: false
+  }),
+  new Message({
+    id: '6', text: 'afawfs', createdAt: new Date('2020-10-10T16:28:00'), author: 'author #5', isPersonal: true, to: 'author #3'
+  }),
+  new Message({
+    id: '7', text: 'afawfs', createdAt: new Date('2020-10-10T16:18:00'), author: 'author #6', isPersonal: false
+  }),
+  new Message({
+    id: '8', text: 'afawfs', createdAt: new Date('2020-11-10T16:58:00'), author: 'author #7', isPersonal: true, to: 'author #2'
+  }),
+  new Message({
+    id: '9', text: 'afawfs', createdAt: new Date('2020-11-10T16:18:00'), author: 'author #8', isPersonal: false
+  }),
+  new Message({
+    id: '10', text: 'afawfs', createdAt: new Date('2020-12-10T16:18:00'), author: 'author #9', isPersonal: false
+  }),
+  new Message({
+    id: '11', text: 'afawfs', createdAt: new Date('2020-12-11T16:18:00'), author: 'author #10', isPersonal: false
+  }),
+  new Message({
+    id: '12', text: 'afawfs', createdAt: new Date('2020-12-12T16:18:00'), author: 'author #11', isPersonal: false
+  }),
+  new Message({
+    id: '13', text: 'afawfs', createdAt: new Date('2021-01-10T16:18:00'), author: 'author #12', isPersonal: false
+  }),
+  new Message({
+    id: '14', text: 'afawfs', createdAt: new Date('2021-01-08T16:18:00'), author: 'author #13', isPersonal: true, to: 'author #12412412'
+  }),
+  new Message({
+    id: '15', text: 'afawfs', createdAt: new Date('2021-01-09T16:18:00'), author: 'author #14', isPersonal: false
+  }),
+  new Message({
+    id: '17', text: 'afawfs', createdAt: new Date('2021-02-10T16:18:00'), author: 'author #15', isPersonal: false
+  }),
+  new Message({
+    id: '18', text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
+  }),
+  // два невалидных сообщ
+  new Message({
+    id: '19', text: 'test new getPage()', author: 'author #15', isPersonal: true, to: 'author #5'
+  }),
+  new Message({
+    text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
+  })
+];
+let myMsgList = new MessageList(msgs);
+console.log(myMsgList.getPage(0, 15, { author: '#1' })); // 6 msgs
+console.log(myMsgList.getPage(0, 15)); // 13 msgs
+console.log(myMsgList.getPage()); // выведет по дефолту skip = 0 top = 10
+console.log(myMsgList.getPage(0, 15, { author: '#1', text: 'А' })); // 1 сообщ
+console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
+console.log(myMsgList.getPage(0, 15, { author: 'author #1', dateFrom: '2000-11-10T16:58:00' })); // 7 msgs
+console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2025-11-10T16:58:00' })); // такой даты нет => false
+console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2020-11-10T16:58:00' })); // 7 msgs
+console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2025-11-10T16:58:00' })); // 13 msgs
+console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2021-01-09T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 6 msgs
+console.log(myMsgList.getPage(0, 15, { author: '#1', dateTo: '2025-11-10T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
+console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2025-11-10T16:58:00', dateTo: '2020-11-10T16:58:00' })); // false : dateTo < dateFrom
+console.log(myMsgList.edit('5', {
+  text: 'new msg' //= > false, тк в _user записан author #3, а его сообщение под id = 4
+}));
+console.log(myMsgList.edit('4', {
+  text: 'new msg' //= > true, тк в _user записан author #3, а его сообщение под id = 4
+}));
+console.log(MessageList.addAll(msgs));
+console.log(MessageList.collection);
+console.log(MessageList.clear());
+console.log(MessageList.collection);
