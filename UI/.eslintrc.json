@@ -1,0 +1,33 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": "airbnb-base/legacy",
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module",
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        }        
+    },
+    "rules": {
+        "max-classes-per-file" : "off",
+        "no-plusplus" : "off",
+        "no-param-reassign" : "off",
+        "no-underscore-dangle" : "off",
+        "class-methods-use-this" : "off",
+        "no-use-before-define" : "off",
+        "max-len": ["warn", { "code": 130 }],
+        "no-console" : "off",
+        "guard-for-in" : "off",
+        "no-continue" : "off",
+        "no-fallthrough" : "off",
+        "no-loop-func" : "off",
+        "func-names" : "off",
+        "consistent-return" : "off",
+        "no-shadow" : ["warn"],
+        "no-restricted-syntax" : ["warn"]
+    }
+}
