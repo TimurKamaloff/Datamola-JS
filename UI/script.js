@@ -59,68 +59,8 @@ class MessageList {
   constructor(msgs) {
     this._collection = msgs;
     this._user = 'author #3';
+    this._msgs = msgs;
   }
-
-  _msgs = [
-    new Message({
-      id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'author #0', isPersonal: false
-    }),
-    new Message({
-      id: '2', text: 'такого материала – максимально', createdAt: new Date('2020-09-11T16:18:00'), author: 'author #1', isPersonal: false
-    }),
-    new Message({
-      id: '3', text: 'полно информировать пользователя', createdAt: new Date('2020-09-11T17:18:00'), author: 'author #2', isPersonal: false
-    }),
-    new Message({
-      id: '4', text: 'afawfs', createdAt: new Date('2020-09-11T16:19:00'), author: 'author #3', isPersonal: true, to: 'author #199'
-    }),
-    new Message({
-      id: '5', text: 'afawfs', createdAt: new Date('2020-09-05T16:18:00'), author: 'author #4', isPersonal: false
-    }),
-    new Message({
-      id: '6', text: 'afawfs', createdAt: new Date('2020-10-10T16:28:00'), author: 'author #5', isPersonal: true, to: 'author #3'
-    }),
-    new Message({
-      id: '7', text: 'afawfs', createdAt: new Date('2020-10-10T16:18:00'), author: 'author #6', isPersonal: false
-    }),
-    new Message({
-      id: '8', text: 'afawfs', createdAt: new Date('2020-11-10T16:58:00'), author: 'author #7', isPersonal: true, to: 'author #2'
-    }),
-    new Message({
-      id: '9', text: 'afawfs', createdAt: new Date('2020-11-10T16:18:00'), author: 'author #8', isPersonal: false
-    }),
-    new Message({
-      id: '10', text: 'afawfs', createdAt: new Date('2020-12-10T16:18:00'), author: 'author #9', isPersonal: false
-    }),
-    new Message({
-      id: '11', text: 'afawfs', createdAt: new Date('2020-12-11T16:18:00'), author: 'author #10', isPersonal: false
-    }),
-    new Message({
-      id: '12', text: 'afawfs', createdAt: new Date('2020-12-12T16:18:00'), author: 'author #11', isPersonal: false
-    }),
-    new Message({
-      id: '13', text: 'afawfs', createdAt: new Date('2021-01-10T16:18:00'), author: 'author #12', isPersonal: false
-    }),
-    new Message({
-      id: '14', text: 'afawfs', createdAt: new Date('2021-01-08T16:18:00'), author: 'author #13', isPersonal: true, to: 'author #12412412'
-    }),
-    new Message({
-      id: '15', text: 'afawfs', createdAt: new Date('2021-01-09T16:18:00'), author: 'author #14', isPersonal: false
-    }),
-    new Message({
-      id: '17', text: 'afawfs', createdAt: new Date('2021-02-10T16:18:00'), author: 'author #15', isPersonal: false
-    }),
-    new Message({
-      id: '18', text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
-    }),
-    // два невалидных сообщ
-    new Message({
-      id: '19', text: 'test new getPage()', author: 'author #15', isPersonal: true, to: 'author #5'
-    }),
-    new Message({
-      text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
-    })
-  ];
 
   get user() {
     return this._user;
@@ -373,9 +313,6 @@ class MessageList {
   }
 }
 
-let myMsgList = new MessageList();
-
-// массив для addAll();
 let msgs = [
   new Message({
     id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'author #0', isPersonal: false
@@ -436,6 +373,8 @@ let msgs = [
     text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
   })
 ];
+
+let myMsgList = new MessageList(msgs);
 
 console.log(myMsgList.getPage(0, 15, { author: '#1' })); // 6 msgs
 console.log(myMsgList.getPage(0, 15)); // 13 msgs
