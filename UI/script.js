@@ -41,23 +41,11 @@ class Message {
   get author() {
     return this._author;
   }
-
-  set id(newId) {
-    return false;
-  }
-
-  set createdAt(newCreatedAt) {
-    return false;
-  }
-
-  set author(newAuthor) {
-    return false;
-  }
 }
 
 class MessageList {
   constructor(msgs) {
-    this._collection = msgs;
+    this._collection = null;
     this._user = 'author #3';
     this._msgs = msgs;
   }
@@ -66,106 +54,63 @@ class MessageList {
     return this._user;
   }
 
-  set user(value) {
-    return false;
-  }
-
   getPage(skip = 0, top = 10, filterConfig = {}) {
     let resultArr = [];
-    let isEmpty = true; // флаг того, что resultArr побывал на какой-либо из фильтраций,
+    let accessMsgs = this._msgs.filter((msg) => {
+      if ((msg.author === this._user) || !((msg.isPersonal === true && msg.to !== this._user))) return msg;
+    });
+
     if (Object.keys(filterConfig).length === 0) {
-      this._msgs.sort((a, b) => {
+      resultArr = accessMsgs.splice(skip, skip + top);
+      resultArr.sort((a, b) => {
         return (Date.parse(b.createdAt) - Date.parse(a.createdAt));
       });
-      for (let i = skip; (resultArr.length < top || i < top); i++) {
-        if (this._msgs[i] === undefined) break;
-        if (!((this._msgs[i].isPersonal === true && this._msgs[i].to !== this._user) || (resultArr.length > top - 1))) {
-          resultArr.push(this._msgs[i]);
-        }
-      }
       return resultArr;
     }
 
     if ('author' in filterConfig) {
-      isEmpty = false;
       let wantedAuthor = filterConfig.author.toLowerCase();
-      for (let i = 0; i < this._msgs.length; i++) {
-        let author = this._msgs[i].author.toLowerCase();
-        if (author.includes(wantedAuthor)) {
-          resultArr.push(this._msgs[i]);
-        }
-      }
-      if (resultArr.length === 0) {
-        return false;
-      }
-      // массив побывал на фильтрации и подходящих сообщ нет - return false
+      resultArr = accessMsgs.filter(msg => msg.author.toLowerCase().includes(wantedAuthor));
+      if (resultArr.length === 0) return false;
     }
+
     if (('dateFrom' in filterConfig || 'dateTo' in filterConfig)) {
-      isEmpty = false;
       if (Date.parse(filterConfig.dateFrom) > (Date.parse(filterConfig.dateTo))) return false; // некорректный ввод даты
       filterConfig.dateFrom = filterConfig.dateFrom || new Date('January 1, 1970 00:00:00'); // дефолтные значения, можно написать и в аргументы,
       filterConfig.dateTo = filterConfig.dateTo || new Date('January 1, 2970 00:00:00'); // но пускай будут тут
       if (resultArr.length === 0) { // проверка на то, что массив попал на первую фильтрацию
-        for (let i = 0; i < this._msgs.length; i++) {
-          if ((Date.parse(this._msgs[i].createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(this._msgs[i].createdAt) < Date.parse(filterConfig.dateTo))) {
-            resultArr.push(this._msgs[i]);
+        resultArr = accessMsgs.filter((msg) => {
+          if ((Date.parse(msg.createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(msg.createdAt) < Date.parse(filterConfig.dateTo))) {
+            return msg;
           }
-        }
-        if (!isEmpty && resultArr.length === 0) return false;
+        });
       } else {
-        let length = resultArr.length;
-        for (let i = 0; i < length; i++) {
-          if (resultArr[i] === undefined) {
-            break;
+        resultArr = resultArr.filter((msg) => {
+          if ((Date.parse(msg.createdAt) > Date.parse(filterConfig.dateFrom)) && (Date.parse(msg.createdAt) < Date.parse(filterConfig.dateTo))) {
+            return msg;
           }
-          let date = Date.parse(resultArr[i].createdAt);
-          if ((date > Date.parse(filterConfig.dateTo) || date < Date.parse(filterConfig.dateFrom))) {
-            resultArr.splice(i, 1);
-            if (resultArr.length === 1) {
-              i = 0; // тут был очень неприятный баг : если все сообщ НЕ подходят по дате, то все удаляются кроме самого первого, пришлось делать такой костыль
-              if ((date > Date.parse(filterConfig.dateTo) || date < Date.parse(filterConfig.dateFrom))) resultArr.splice(i, 1);
-            }
-            i = -1; // на всякий случай после каждого удаления цикл пойдёт с 0
-          }
-        }
-        if (!isEmpty && resultArr.length === 0) return false;
+        });
+        if (resultArr.length === 0) return false;
       }
     }
+
     if ('text' in filterConfig) {
       if (resultArr.length === 0) {
-        for (let i = 0; i < this._msgs.length; i++) {
-          let text = this._msgs[i].text.toLowerCase();
-          let wantedText = filterConfig.text.toLowerCase();
-          if (text.includes(wantedText)) resultArr.push(this._msgs[i]);
-        }
-        if (!isEmpty && resultArr.length === 0) return false;
+        resultArr = accessMsgs.filter((msg) => {
+          if (msg.text.toLowerCase().includes(filterConfig.text.toLowerCase())) return msg;
+        });
+        if (resultArr.length === 0) return false;
       } else {
-        for (let i = 0; i < resultArr.length; i++) {
-          let text = resultArr[i].text.toLowerCase();
-          let wantedText = filterConfig.text.toLowerCase();
-          if (!text.includes(wantedText)) {
-            resultArr.splice(i, 1);
-            i = -1;
-          }
-          if (!isEmpty && resultArr.length === 0) return false;
-        }
+        resultArr = resultArr.filter((msg) => {
+          if (msg.text.toLowerCase().includes(filterConfig.text.toLowerCase())) return msg;
+        });
       }
     }
+
     resultArr.sort((a, b) => {
       return (Date.parse(b.createdAt) - Date.parse(a.createdAt));
     });
-    let lastRes = []; // новая переменная для отборки только общих сообщ или ЛС для _user
-    for (let i = skip; i < resultArr.length; i++) {
-      if (this._msgs[i] === undefined || lastRes.length > top) {
-        break;
-      }
-      if (this._msgs[i].isPersonal && this._msgs[i].to !== this._user) {
-        continue;
-      } else if (MessageList._validate(resultArr[i])) {
-        lastRes.push(resultArr[i]);
-      }
-    }
-    return lastRes;
+    return resultArr.slice(skip, skip + top);
   }
 
   get(id = '') {
@@ -177,12 +122,8 @@ class MessageList {
   }
 
   add(msg = {}) {
-    if (arguments[0] === undefined || myMsgList.user === undefined) return false;
-    // автризован ли пользователь и может ли он писать сообщ
-    for (let i = 0; i < this._msgs.length; i++) {
-      if (!myMsgList.user) {
-        return false;
-      }
+    if (!myMsgList.user) {
+      return false;
     }
     let newMsg = {};
     newMsg.id = `${addModule.next()}`;
@@ -193,15 +134,14 @@ class MessageList {
             if (msg[key].length < 200) newMsg[key] = msg[key]; break;
           }
           case ('isPersonal'): {
-            if (msg[key]) {
-              newMsg[key] = true;
-              if (!MessageList._user) console.log(false);
+            if (msg.isPersonal) {
+              newMsg.isPersonal = true;
+              if (!MessageList._user) newMsg.to = undefined;
               newMsg.to = 'Какой-то пользователь';
             }
             break;
           }
           case ('to'): {
-            console.log('to');
             newMsg.isPersonal = true;
             newMsg.to = msg.to;
             break;
@@ -220,42 +160,37 @@ class MessageList {
 
   edit(id = '', msg = {}) {
     if (id === '' || Number(id) < 0 || arguments[0] === undefined) return false;
-    let newMsg = {};
-    // Проверка на то, что пользователь является автором этого сообщ и может его редачит
-    for (let i = 0; i < this._msgs.length; i++) {
-      if (this._msgs[i].id === id && this._msgs[i].author !== myMsgList.user) {
-        return false;
-      }
-    }
-    Object.keys(msg).forEach(function (key) {
-      if (key !== 'id' && key !== 'createdAt' && key !== 'author') {
-        switch (key) {
-          case ('text'): {
-            if (msg[key].length < 200) newMsg[key] = msg[key]; break;
-          }
-          case ('isPersonal'): {
-            if (msg[key]) {
-              newMsg[key] = true;
-              newMsg.to = addModule.currentRecipient;
-              break;
-            }
-          }
-          default: {
-            break;
-          }
-        }
-      }
-    });
+    let userMsg;
+    // Проверка на то, что пользователь является автором этого сообщ и может его редачить
     for (let i = 0; i < this._msgs.length; i++) {
       if (this._msgs[i].id === id) {
-        let msg = this._msgs[i];
-        Object.keys(newMsg).forEach(function (key) {
-          msg[key] = newMsg[key];
-        });
-        return true;
+        if (this._msgs[i].author !== this._user) {
+          return false;
+        }
+        userMsg = this._msgs[i];
       }
     }
-    return false;
+    let newMsg = {};
+    if ('text' in msg && msg.text.length < 200) {
+      newMsg.text = msg.text;
+    } else {
+      return false;
+    }
+    if ('isPersonal' in msg) {
+      if (msg.isPersonal) {
+        newMsg.isPersonal = true;
+        newMsg.to = addModule.currentRecipient;
+      } else {
+        newMsg.isPersonal = false;
+      }
+    }
+    if ('id' in msg || 'createAt' in msg || 'author' in msg) {
+      return false;
+    }
+    Object.keys(newMsg).forEach((key) => {
+      userMsg[key] = newMsg[key];
+    });
+    return true;
   }
 
   remove(id = '') {
@@ -263,8 +198,6 @@ class MessageList {
     // та же проверка что и в edit
     for (let i = 0; i < this._msgs.length; i++) {
       if (this._msgs[i].id === id && this._msgs[i].author !== myMsgList.user) {
-        console.log(myMsgList.user);
-        console.log(this._msgs[i].author !== myMsgList.user);
         return false;
       }
     }
@@ -286,8 +219,7 @@ class MessageList {
       author: '',
       isPersonal: true
     };
-    // eslint ругается на этот цикл, но с заменой его через Object.keys появляется баг,
-    for (let key in exampleMsg) { //  когда отоборажаются ненужные для пользователя сообщение (isPersonal === true)
+    for (let key in exampleMsg) {
       if (!(key in msg) || (typeof (exampleMsg[key]) !== typeof (msg[key]))) return false;
     }
     return true;
@@ -377,15 +309,15 @@ let msgs = [
 let myMsgList = new MessageList(msgs);
 
 console.log(myMsgList.getPage(0, 15, { author: '#1' })); // 6 msgs
-console.log(myMsgList.getPage(0, 15)); // 13 msgs
+console.log(myMsgList.getPage(0, 15)); // 14 msgs 
 console.log(myMsgList.getPage()); // выведет по дефолту skip = 0 top = 10
 console.log(myMsgList.getPage(0, 15, { author: '#1', text: 'А' })); // 1 сообщ
 console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
-console.log(myMsgList.getPage(0, 15, { author: 'author #1', dateFrom: '2000-11-10T16:58:00' })); // 7 msgs
+console.log(myMsgList.getPage(0, 15, { author: 'author #1', dateFrom: '2000-11-10T16:58:00' })); // 6 msgs
 console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2025-11-10T16:58:00' })); // такой даты нет => false
 console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2020-11-10T16:58:00' })); // 7 msgs
-console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2025-11-10T16:58:00' })); // 13 msgs
-console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2021-01-09T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 6 msgs
+console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2025-11-10T16:58:00' })); // 14 msgs
+console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2021-01-09T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
 console.log(myMsgList.getPage(0, 15, { author: '#1', dateTo: '2025-11-10T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
 console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2025-11-10T16:58:00', dateTo: '2020-11-10T16:58:00' })); // false : dateTo < dateFrom
 console.log(myMsgList.edit('5', {

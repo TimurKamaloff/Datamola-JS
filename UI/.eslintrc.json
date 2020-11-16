@@ -28,6 +28,7 @@
         "func-names" : "off",
         "consistent-return" : "off",
         "no-shadow" : ["warn"],
-        "no-restricted-syntax" : ["warn"]
+        "no-restricted-syntax" : ["warn"],
+        "array-callback-return" : "off"
     }
 }
