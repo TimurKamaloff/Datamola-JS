@@ -14,7 +14,7 @@
     --main-bgcolor: #F2CE1B;
     --primary-bgcolor: #B38F0E;
     --circle-size: 3rem;
-    --personal-circle-size: 1.5rem;
+    --personal-circle-size: 1rem;
 }
 html {
     max-width: 2000px;
@@ -23,17 +23,13 @@ html {
     width: calc(var(--main-font-size) * 2);
     height: calc(var(--main-font-size) * 2);
     color: var(--main-bgcolor);
-    margin-left: 1.5rem;
+    padding-left: 1.5rem;
     cursor: pointer;
 }
 button .iconify {
     color:black;
     margin: 0.3rem 1rem 0 0;
 }
-button, .iconify, input {
-    outline: none;
-}
-
 body {
     font-family: NotoSans;
     font-size: var(--main-font-size);
@@ -118,6 +114,14 @@ button:hover, input:hover {
 }
 .user {
     margin: 1rem auto .5rem .5rem;
+
+}
+.user div {
+    display: flex;
+    flex-direction: column;  
+}
+.user i {
+    white-space: nowrap;
 }
 .circle {
     display: flex;
@@ -130,9 +134,15 @@ button:hover, input:hover {
     margin-right:1rem;
     cursor: pointer;
 }
+.bold {
+    font-weight: bold;
+}
 .circle p {
     margin:auto;
     color:white;
+}
+.my-circle {
+    margin-right: -0em;
 }
 .personal {
     background-color: var(--main-bgcolor);
@@ -161,6 +171,10 @@ button:hover, input:hover {
     display: flex;
     width: auto;
 }
+.my .iconify {
+    padding: 0;
+    margin-left: 1rem;
+}
 .message span {
     margin-right: 1rem ;
     padding: 1rem;
@@ -174,13 +188,32 @@ button:hover, input:hover {
     display: block;
     width: auto;
 }
+.my .message {
+    margin-left: auto;
+}
 .info {
     margin: -1rem 0 1.5rem 5rem;
+}
+.my-info {
+    margin:-0.5rem 5rem;
+    display: flex;
+}
+.my-info i {
+    text-align: right;
+    margin: 0rem 0 1.5rem auto;
+    padding-left: auto;
+    width:35rem;
+}
+#my-personal-msg .td {
+    display: flex;
 }
 .my {
     float: right;
     margin-bottom:-2rem;
+    display: flex;
+    flex-direction: column;
 }
+
 .icons {
     margin: auto 1rem;
 }
