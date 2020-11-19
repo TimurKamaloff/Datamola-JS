@@ -337,7 +337,9 @@ class MessageView {
   }
 
   display(arrMsg, currentUser) {
-    setUserColor(); // генерирует цвета для пользователей
+    if (Object.keys(usersColors).length === 0) {
+      setUserColor(); // генерирует цвета для пользователей
+    }
     this.element.innerHTML = '';
     let msgStr = ``
     for (let i = 0; i < arrMsg.length; i++) {
@@ -390,7 +392,7 @@ class ActiveUsersView {
     this.element = document.getElementById(id); 
   }
   display(arrUser) {
-    if (usersColors = {}) {
+    if (Object.keys(usersColors).length === 0) {
       setUserColor(); // генерирует цвета для пользователей
     }
     this.element.innerHTML = '';
