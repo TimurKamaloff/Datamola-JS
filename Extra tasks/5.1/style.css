@@ -1,0 +1,22 @@
+#calendar {
+    border-collapse: collapse; 
+}
+thead td {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 3px; 
+    border: 1px solid black; 
+    text-align: center;
+    width: 30px;
+    height: 30px;
+    background-color:#c4c4c4;
+}
+tbody td {
+    font-size: 24px;
+    font-weight: bold;
+    padding: 3px; 
+    border: 1px solid black; 
+    text-align: center;
+    width: 30px;
+    height: 30px;
+}
