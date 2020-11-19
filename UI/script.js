@@ -1,5 +1,5 @@
 const addModule = (function () {
-  let count = 16; // потому что последний id  в объекте 23
+  let count = 19; // потому что последний id  в объекте 23
   let currentAuthor = 'автор';
   let currentRecipient = 'получатель';
   function nextCount() {
@@ -46,7 +46,7 @@ class Message {
 class MessageList {
   constructor(msgs) {
     this._collection = null;
-    this._user = 'author #3';
+    this._user = 'Тимур';
     this._msgs = msgs;
   }
 
@@ -57,15 +57,16 @@ class MessageList {
   getPage(skip = 0, top = 10, filterConfig = {}) {
     let resultArr = [];
     let accessMsgs = this._msgs.filter((msg) => {
-      if ((msg.author === this._user) || !((msg.isPersonal === true && msg.to !== this._user))) return msg;
+      if ((msg.author === this._user) || !((msg.isPersonal === true && msg.to !== this._user))) {
+        return msg;
+      }
     });
-
     if (Object.keys(filterConfig).length === 0) {
-      resultArr = accessMsgs.splice(skip, skip + top);
-      resultArr.sort((a, b) => {
-        return (Date.parse(b.createdAt) - Date.parse(a.createdAt));
+      accessMsgs.sort((a, b) => {
+        return -(Date.parse(a.createdAt) - Date.parse(b.createdAt));
       });
-      return resultArr;
+      resultArr = accessMsgs.slice(skip, skip + top);
+      return resultArr.reverse();
     }
 
     if ('author' in filterConfig) {
@@ -108,9 +109,9 @@ class MessageList {
     }
 
     resultArr.sort((a, b) => {
-      return (Date.parse(b.createdAt) - Date.parse(a.createdAt));
+      return -(Date.parse(b.createdAt) - Date.parse(a.createdAt));
     });
-    return resultArr.slice(skip, skip + top);
+    return resultArr.slice(skip, skip + top).reverse();
   }
 
   get(id = '') {
@@ -134,10 +135,13 @@ class MessageList {
             if (msg[key].length < 200) newMsg[key] = msg[key]; break;
           }
           case ('isPersonal'): {
-            if (msg.isPersonal) {
+            if (msg[key]) {
               newMsg.isPersonal = true;
               if (!MessageList._user) newMsg.to = undefined;
               newMsg.to = 'Какой-то пользователь';
+            }
+            if (!msg[key]) {
+              newMsg.isPersonal = false;
             }
             break;
           }
@@ -171,25 +175,20 @@ class MessageList {
       }
     }
     let newMsg = {};
-    if ('text' in msg && msg.text.length < 200) {
-      newMsg.text = msg.text;
-    } else {
-      return false;
-    }
+    if ('text' in msg && msg['text'].length < 200) {
+      userMsg.text = msg.text;
+    } 
     if ('isPersonal' in msg) {
       if (msg.isPersonal) {
-        newMsg.isPersonal = true;
-        newMsg.to = addModule.currentRecipient;
+        userMsg.isPersonal = true;
+        userMsg.to = msg.to;
       } else {
-        newMsg.isPersonal = false;
+        userMsg.isPersonal = false;
       }
     }
     if ('id' in msg || 'createAt' in msg || 'author' in msg) {
       return false;
     }
-    Object.keys(newMsg).forEach((key) => {
-      userMsg[key] = newMsg[key];
-    });
     return true;
   }
 
@@ -247,86 +246,68 @@ class MessageList {
 
 let msgs = [
   new Message({
-    id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'author #0', isPersonal: false
+    id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'Александр', isPersonal: false
   }),
   new Message({
-    id: '2', text: 'такого материала – максимально', createdAt: new Date('2020-09-11T16:18:00'), author: 'author #1', isPersonal: false
+    id: '2', text: 'такого материала – максимально', createdAt: new Date('2020-09-11T16:18:00'), author: 'Матвей', isPersonal: false
   }),
   new Message({
-    id: '3', text: 'полно информировать пользователя', createdAt: new Date('2020-09-11T17:18:00'), author: 'author #2', isPersonal: false
+    id: '3', text: 'полно информировать пользователя', createdAt: new Date('2020-09-11T17:18:00'), author: 'София', isPersonal: false
   }),
   new Message({
-    id: '4', text: 'afawfs', createdAt: new Date('2020-09-11T16:19:00'), author: 'author #3', isPersonal: true, to: 'author #199'
+    id: '4', text: 'Извещатель автономный ИП 212-52Т предназначен для установки в бытовые, офисные, промышленные помещения. Незаменим при обнаружении задымленности окружающего воздуха, при котором выдается тревожный сигнал в виде мигания встроенного светодиода и длительных звуковых сигналов. Защищаемая площадь до 85 м2.', createdAt: new Date('2020-09-11T16:19:00'), author: 'Анна', isPersonal: true, to: 'Тимур'
   }),
   new Message({
-    id: '5', text: 'afawfs', createdAt: new Date('2020-09-05T16:18:00'), author: 'author #4', isPersonal: false
+    id: '5', text: 'Монтируется на потолок или стену, температурный диапазон от -10 до +55С.', createdAt: new Date('2020-09-05T16:18:00'), author: 'Мария', isPersonal: false
   }),
   new Message({
-    id: '6', text: 'afawfs', createdAt: new Date('2020-10-10T16:28:00'), author: 'author #5', isPersonal: true, to: 'author #3'
+    id: '6', text: 'afЧувствительность извещателя соответствует задымленности среды с оптической плотностью, дБ/м от 0,01 до 0,2. Напряжение питания от 7,5 до 10В. awfs', createdAt: new Date('2020-10-10T06:28:00'), author: 'Ксения', isPersonal: true, to: 'Тимур'
   }),
   new Message({
-    id: '7', text: 'afawfs', createdAt: new Date('2020-10-10T16:18:00'), author: 'author #6', isPersonal: false
+    id: '7', text: 'Выравнивание текста по центру. Текст помещается по центру горизонтали окна браузера или контейнера, где расположен текстовый блок. Строки текста словно нанизываются на невидимую ось, которая проходит по центру веб-страницы. Подобный способ выравнивания активно используется в заголовках и различных подписях, вроде подрисуночных, он придает официальный и солидный вид оформлению текста. Во всех других случаях выравнивание по центру применяется редко по той причине, что читать большой объем такого текста неудобно.', createdAt: new Date('2020-10-10T16:18:00'), author: 'Анастасия', isPersonal: false
   }),
   new Message({
-    id: '8', text: 'afawfs', createdAt: new Date('2020-11-10T16:58:00'), author: 'author #7', isPersonal: true, to: 'author #2'
+    id: '8', text: 'Потребляемый ток в дежурном режиме не более 15 мкА. Габаритные размеры — 45х98 мм.', createdAt: new Date('2020-11-10T16:58:00'), author: 'Тимур', isPersonal: true, to: 'Cаня'
   }),
   new Message({
-    id: '9', text: 'afawfs', createdAt: new Date('2020-11-10T16:18:00'), author: 'author #8', isPersonal: false
+    id: '9', text: 'afawfs', createdAt: new Date('2020-11-10T16:18:00'), author: 'Мария', isPersonal: false
   }),
   new Message({
-    id: '10', text: 'afawfs', createdAt: new Date('2020-12-10T16:18:00'), author: 'author #9', isPersonal: false
+    id: '10', text: 'Аналогично значению right, если текст идёт слева направо и left, когда текст идёт справа налево', createdAt: new Date('2020-12-10T16:18:00'), author: 'Ольга', isPersonal: false
   }),
   new Message({
-    id: '11', text: 'afawfs', createdAt: new Date('2020-12-11T16:18:00'), author: 'author #10', isPersonal: false
+    id: '11', text: 'afawfs', createdAt: new Date('2020-12-11T16:18:00'), author: 'Ксения', isPersonal: false
   }),
   new Message({
-    id: '12', text: 'afawfs', createdAt: new Date('2020-12-12T16:18:00'), author: 'author #11', isPersonal: false
+    id: '12', text: 'Выравнивание текста по центру. Текст помещается по центру горизонтали окна браузера или контейнера, где расположен текстовый блок. Строки текста словно нанизываются на невидимую ось, которая проходит по центру веб-страницы. Подобный способ выравнивания активно используется в заголовках и различных подписях, вроде подрисуночных, он придает официальный и солидный вид оформлению текста. Во всех других случаях выравнивание по центру применяется редко по той причине, что читать большой объем такого текста неудобно.', createdAt: new Date('2020-12-12T16:18:00'), author: 'Анна', isPersonal: false
   }),
   new Message({
-    id: '13', text: 'afawfs', createdAt: new Date('2021-01-10T16:18:00'), author: 'author #12', isPersonal: false
+    id: '13', text: 'afawfs', createdAt: new Date('2020-01-10T16:18:00'), author: 'author #12', isPersonal: false
   }),
   new Message({
-    id: '14', text: 'afawfs', createdAt: new Date('2021-01-08T16:18:00'), author: 'author #13', isPersonal: true, to: 'author #12412412'
+    id: '14', text: 'Не изменяет положение элемента.', createdAt: new Date('2019-01-08T16:18:00'), author: 'Матвей', isPersonal: true, to: 'Александр'
   }),
   new Message({
-    id: '15', text: 'afawfs', createdAt: new Date('2021-01-09T16:18:00'), author: 'author #14', isPersonal: false
+    id: '15', text: 'afawfs', createdAt: new Date('2029-01-09T16:18:00'), author: 'Максим', isPersonal: false
   }),
   new Message({
-    id: '17', text: 'afawfs', createdAt: new Date('2021-02-10T16:18:00'), author: 'author #15', isPersonal: false
+    id: '17', text: 'afawfs', createdAt: new Date('2011-02-10T16:18:00'), author: 'Александр', isPersonal: false
   }),
   new Message({
-    id: '18', text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
+    id: '18', text: 'test new getPage()', createdAt: new Date('2029-02-10T16:18:00'), author: 'Анастасия', isPersonal: true, to: 'Мария'
   }),
   // два невалидных сообщ
   new Message({
-    id: '19', text: 'test new getPage()', author: 'author #15', isPersonal: true, to: 'author #5'
+    id: '19', text: 'Наследует значение родителя', author: 'Максим', isPersonal: true, to: 'Мария'
   }),
   new Message({
-    text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'author #15', isPersonal: true, to: 'author #5'
+    text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'Александр', isPersonal: true, to: 'Анастасия'
   })
 ];
 
 let myMsgList = new MessageList(msgs);
 
-console.log(myMsgList.getPage(0, 15, { author: '#1' })); // 6 msgs
-console.log(myMsgList.getPage(0, 15)); // 14 msgs 
-console.log(myMsgList.getPage()); // выведет по дефолту skip = 0 top = 10
-console.log(myMsgList.getPage(0, 15, { author: '#1', text: 'А' })); // 1 сообщ
-console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
-console.log(myMsgList.getPage(0, 15, { author: 'author #1', dateFrom: '2000-11-10T16:58:00' })); // 6 msgs
-console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2025-11-10T16:58:00' })); // такой даты нет => false
-console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2020-11-10T16:58:00' })); // 7 msgs
-console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2025-11-10T16:58:00' })); // 14 msgs
-console.log(myMsgList.getPage(0, 15, { author: 'aut', dateTo: '2021-01-09T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
-console.log(myMsgList.getPage(0, 15, { author: '#1', dateTo: '2025-11-10T16:58:00', dateFrom: '2020-11-10T16:58:00' })); // 5 msgs
-console.log(myMsgList.getPage(0, 15, { author: '#1', dateFrom: '2025-11-10T16:58:00', dateTo: '2020-11-10T16:58:00' })); // false : dateTo < dateFrom
-console.log(myMsgList.edit('5', {
-  text: 'new msg' //= > false, тк в _user записан author #3, а его сообщение под id = 4
-}));
-console.log(myMsgList.edit('4', {
-  text: 'new msg' //= > true, тк в _user записан author #3, а его сообщение под id = 4
-}));
-console.log(MessageList.addAll(msgs));
-console.log(MessageList.collection);
-console.log(MessageList.clear());
-console.log(MessageList.collection);
+
+
+
+
