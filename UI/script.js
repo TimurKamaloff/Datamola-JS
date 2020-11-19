@@ -307,6 +307,170 @@ let msgs = [
 
 let myMsgList = new MessageList(msgs);
 
+let users = ['Максим','Артем','Михаил','Александр','Матвей','София','Анна','Мария','Ксения','Анастасия','Тимур','Елена','Ольга'];
+let activeUsers = ['Максим','Михаил','Матвей','Анна','Мария','Тимур'];
+let usersColors = {};
+
+class UserList {
+  constructor (users, activeUsers) {
+    this.users = users;
+    this.activeUsers = activeUsers;
+  }
+}
+
+let myUserList = new UserList (users, activeUsers);
+
+class HeaderView {
+  constructor (id) {
+    this.element = document.getElementById(id)
+  }
+  display() {
+    this.element.innerHTML = `Вы вошли как ${myMsgList._user}`;
+  }
+}
+
+let myHeader = new HeaderView('user-name');
+
+class MessageView {
+  constructor (id) {
+    this.element = document.getElementById(id);
+  }
+
+  display(arrMsg, currentUser) {
+    setUserColor(); // генерирует цвета для пользователей
+    this.element.innerHTML = '';
+    let msgStr = ``
+    for (let i = 0; i < arrMsg.length; i++) {
+      let firstLetters = arrMsg[i].author.slice(0,2).toUpperCase();
+      if (arrMsg[i].author === currentUser && !arrMsg[i].isPersonal) {
+        msgStr += document.getElementById('my-msg')
+                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
+                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
+                                  .replace('<i>FROM', `<i>${arrMsg[i].author}`)
+                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
+                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
+        continue;
+      }
+      if (arrMsg[i].isPersonal && arrMsg[i].author === currentUser) {
+        msgStr += document.getElementById('my-personal-msg')
+                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
+                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
+                                  .replace('<i>FROM', `<i>от Вас для <span class="bold">${arrMsg[i].to}</span>`)
+                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
+                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
+        continue;
+      }
+      if (arrMsg[i].isPersonal && arrMsg[i].to === currentUser) {
+        msgStr += document.getElementById('for-me')
+                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
+                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
+                                  .replace('<i>FROM', `<i>от ${arrMsg[i].author} для вас`)
+                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
+                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
+        continue;
+      }
+      else {
+        msgStr += document.getElementById('for-all')
+                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
+                                  .replace('<i>FROM', `<i>${arrMsg[i].author}`)
+                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
+                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
+                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
+        continue;
+      }
+    }
+    this.element.innerHTML = msgStr;
+  }
+}
+
+let myMessageView = new MessageView('message-list');
+
+class ActiveUsersView {
+  constructor (id) {
+    this.element = document.getElementById(id); 
+  }
+  display(arrUser) {
+    if (usersColors = {}) {
+      setUserColor(); // генерирует цвета для пользователей
+    }
+    this.element.innerHTML = '';
+    let userStr = '';
+    for (let i = 0; i < arrUser.length; i++) {
+      let firstLetters = arrUser[i].slice(0,2).toUpperCase();
+      userStr += document.getElementById('user')
+                                  .innerHTML
+                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
+                                  .replace('background-color', `background-color: ${usersColors[arrUser[i]]}`)
+                                  .replace('Логин пользователя', `${arrUser[i]}`)
+    }
+    this.element.innerHTML = userStr;
+  }
+}
+
+let myActiveUserList = new ActiveUsersView ('users');
+
+addMessage = (text, isPersonal = false, to) => {
+  let msg = {
+    text: text,
+    isPersonal: isPersonal
+  }
+  if (isPersonal) {
+    msg.to = to;
+  }
+  myMsgList.add(msg);
+  showMessages();
+}
+
+editMessage = (id, params) => {
+  if(myMsgList.edit(id, params)) {
+    showMessages();
+  }
+}
+
+removeMessage = (id) => {
+  if(myMsgList.remove(id)) {
+    showMessages();
+  }
+}
+
+function showMessages  (skip = 0, top = 10, filterConfig = {})  {
+  myMessageView.display(myMsgList.getPage(arguments[0], arguments[1], arguments[2]), myMsgList.user);
+}
+
+showActiveUsers = () => {
+  myActiveUserList.display(activeUsers);
+}
+
+setCurrenUser = (user) => {
+  myMsgList._user = user;
+  myHeader.display();
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+formatDate = (date) => {
+  return `${addNull(date.getDate())}.${addNull(date.getMonth()+1)}.${addNull(date.getFullYear())} ${addNull(date.getHours())}:${addNull(date.getMinutes())}`
+}
+
+addNull = (numb) => {
+  return (numb > 9) ? numb : `0${numb}`
+}
+
+randomColor = () => {
+  let a = Math.random()*255;
+  let b = Math.random()*255;
+  let c = Math.random()*255;
+  return `rgb(${a}, ${b}, ${c})`;
+}
+
+function setUserColor () {
+  for (let i = 0; i < users.length; i++) {
+    usersColors[`${users[i]}`] = randomColor();
+  }
+}
+
 
 
 
