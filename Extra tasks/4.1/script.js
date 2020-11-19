@@ -16,6 +16,44 @@ class List {
         }
     }
 
+    removeNode (i) {
+        let el = this.root;
+        if (el.next === null) {
+            return false;
+        }
+        if (i === 0) {
+            let node = new Node (el.next.next, el.next.value);
+            el.next = node.next;
+            el.value = node.value;
+            // list.value = this.next.value;
+            // list.next = this.next.next;
+            return true;
+        }
+        if (arguments.length === 0) {
+            while (el.next.next !== null) {
+                el = el.next;
+            }
+            el.next = null;
+            el.value = null;
+            return true;
+        } else {
+            let countEl = 0
+             while (el.next) {
+                el = el.next;
+                countEl++;
+            }
+            if (countEl < i) return false
+            el = this.root;
+            for (let j = 0; j < i; j++) {
+                el = el.next;
+            }
+            let node = new Node (el.next.next, el.next.value);
+            el.next = node.next;
+            el.value = node.value;
+            return true;
+        }        
+    }
+
     addNode(value, i) {
         let el = this.root;
         if (arguments[1] === undefined) {
@@ -45,7 +83,6 @@ class List {
                 el = el.next;
             }
             let node = new Node (el.next, el.value);
-            console.log(node);
             el.next = node;
             el.value = value;
             return true;
@@ -66,5 +103,5 @@ let node4 = new Node (node5, 4);
 let node3 = new Node (node4, 3);
 let node2 = new Node (node3, 2);
 let node1 = new Node (node2, 1)
-let root = new Node (null, 0);
+let root = new Node (node1, 0);
 let list = new List (root);
