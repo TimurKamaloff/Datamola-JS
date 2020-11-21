@@ -22,19 +22,14 @@ class List {
             return false;
         }
         if (i === 0) {
-            let node = new Node (el.next.next, el.next.value);
-            el.next = node.next;
-            el.value = node.value;
-            // list.value = this.next.value;
-            // list.next = this.next.next;
+            this.root = el.next;
             return true;
         }
-        if (arguments.length === 0) {
-            while (el.next.next !== null) {
+        if (!i) {
+            while (el.next.next) {
                 el = el.next;
             }
             el.next = null;
-            el.value = null;
             return true;
         } else {
             let countEl = 0
@@ -44,12 +39,11 @@ class List {
             }
             if (countEl < i) return false
             el = this.root;
-            for (let j = 0; j < i; j++) {
+            for (let j = 0; j < i - 1; j++) {
                 el = el.next;
             }
             let node = new Node (el.next.next, el.next.value);
             el.next = node.next;
-            el.value = node.value;
             return true;
         }        
     }
@@ -64,8 +58,7 @@ class List {
             while (el.next) {
                 el = el.next;
             }
-            el.value = value;
-            el.next = new Node (null, null);
+            el.next = new Node (null, value)
             return true;
         } else {
             let countEl = 0
@@ -75,6 +68,14 @@ class List {
             }
             if (i === 0 && countEl === 0) {
                 el.next = new Node (null, value)
+                return true;
+            }
+            if (countEl === i) {
+                el = this.root;
+                for (let j = 0; j < i; j++) {
+                    el = el.next;
+                }
+                el.next = new Node (null, value);
                 return true;
             }
             if (countEl < i) return false
@@ -97,10 +98,10 @@ class Node {
     }
 }
 
-let node6 = new Node (null, 6);
-let node5 = new Node (node6, 5);
-let node4 = new Node (node5, 4);
-let node3 = new Node (node4, 3);
+// let node6 = new Node (null, 6);
+// let node5 = new Node (node6, 5);
+// let node4 = new Node (node5, 4);
+let node3 = new Node (null, 3);
 let node2 = new Node (node3, 2);
 let node1 = new Node (node2, 1)
 let root = new Node (node1, 0);
