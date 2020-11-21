@@ -1,25 +1,3 @@
-const addModule = (function () {
-  let count = 19; // потому что последний id  в объекте 23
-  let currentAuthor = 'автор';
-  let currentRecipient = 'получатель';
-  function nextCount() {
-    return ++count;
-  }
-  function dropCount() {
-    count = 0;
-  }
-  function getCount() {
-    return count;
-  }
-  return {
-    next: nextCount,
-    init: dropCount,
-    get: getCount,
-    currentAuthor,
-    currentRecipient
-  };
-}());
-
 class Message {
   constructor(options) {
     this._id = options.id;
@@ -45,25 +23,29 @@ class Message {
 
 class MessageList {
   constructor(msgs) {
-    this._collection = null;
     this._user = 'Тимур';
     this._msgs = msgs;
+    this.idCount = 20;
   }
 
   get user() {
     return this._user;
   }
 
+  set user(newUser) {
+    this._user = newUser;
+  }
+
   getPage(skip = 0, top = 10, filterConfig = {}) {
     let resultArr = [];
     let accessMsgs = this._msgs.filter((msg) => {
-      if ((msg.author === this._user) || !((msg.isPersonal === true && msg.to !== this._user))) {
+      if ((msg.author === this.user) || !((msg.isPersonal === true && msg.to !== this.user))) {
         return msg;
       }
     });
     if (Object.keys(filterConfig).length === 0) {
       accessMsgs.sort((a, b) => {
-        return -(Date.parse(a.createdAt) - Date.parse(b.createdAt));
+        return -(a.createdAt - b.createdAt);
       });
       resultArr = accessMsgs.slice(skip, skip + top);
       return resultArr.reverse();
@@ -109,107 +91,65 @@ class MessageList {
     }
 
     resultArr.sort((a, b) => {
-      return -(Date.parse(b.createdAt) - Date.parse(a.createdAt));
+      return -(b.createdAt - a.createdAt);
     });
     return resultArr.slice(skip, skip + top).reverse();
   }
 
   get(id = '') {
     if (id === '' || Number(id) < 0) return false;
-    Object.keys(this._msgs).forEach(function (key) {
-      if (this._msgs[key].id === id) return this._msgs[key];
-    });
-    return false;
+    return this._msgs.find(msg => msg.id === id);
   }
 
   add(msg = {}) {
-    if (!myMsgList.user) {
+    if (!this.user) {
       return false;
     }
-    let newMsg = {};
-    newMsg.id = `${addModule.next()}`;
-    Object.keys(msg).forEach(function (key) {
-      if (key !== 'id' && key !== 'createdAt' && key !== 'author') {
-        switch (key) {
-          case ('text'): {
-            if (msg[key].length < 200) newMsg[key] = msg[key]; break;
-          }
-          case ('isPersonal'): {
-            if (msg[key]) {
-              newMsg.isPersonal = true;
-              if (!MessageList._user) newMsg.to = undefined;
-              newMsg.to = 'Какой-то пользователь';
-            }
-            if (!msg[key]) {
-              newMsg.isPersonal = false;
-            }
-            break;
-          }
-          case ('to'): {
-            newMsg.isPersonal = true;
-            newMsg.to = msg.to;
-            break;
-          }
-          default: {
-            break;
-          }
-        }
-      }
+    let newMsg = new Message({
+      id: `${this.idCount++}`, text: msg.text, createdAt: new Date(), author: this.user, isPersonal: msg.isPersonal
     });
-    newMsg.createdAt = new Date();
-    newMsg.author = this._user;
-    this._msgs.push(new Message(newMsg));
-    return true;
+    if (msg.isPersonal) {
+      newMsg.to = msg.to;
+    }
+    if (MessageList.validate(newMsg)) {
+      this._msgs.push(newMsg);
+      return true;
+    }
+    return false;
   }
 
   edit(id = '', msg = {}) {
     if (id === '' || Number(id) < 0 || arguments[0] === undefined) return false;
-    let userMsg;
-    // Проверка на то, что пользователь является автором этого сообщ и может его редачить
-    for (let i = 0; i < this._msgs.length; i++) {
-      if (this._msgs[i].id === id) {
-        if (this._msgs[i].author !== this._user) {
-          return false;
-        }
-        userMsg = this._msgs[i];
-      }
-    }
-    let newMsg = {};
-    if ('text' in msg && msg['text'].length < 200) {
-      userMsg.text = msg.text;
-    } 
-    if ('isPersonal' in msg) {
-      if (msg.isPersonal) {
-        userMsg.isPersonal = true;
-        userMsg.to = msg.to;
-      } else {
-        userMsg.isPersonal = false;
-      }
-    }
-    if ('id' in msg || 'createAt' in msg || 'author' in msg) {
+    const userMsg = this._msgs.find(msg => msg.id === id);
+    if (userMsg.author !== this.user) {
       return false;
     }
-    return true;
-  }
-
-  remove(id = '') {
-    if (id === '' || Number(id) < 0) return false;
-    // та же проверка что и в edit
-    for (let i = 0; i < this._msgs.length; i++) {
-      if (this._msgs[i].id === id && this._msgs[i].author !== myMsgList.user) {
-        return false;
-      }
+    let newMsg = new Message({
+      id: userMsg.id, text: msg.text, createdAt: userMsg.createdAt, author: userMsg.author, isPersonal: userMsg.isPersonal
+    });
+    if ('isPersonal' in msg) {
+      newMsg.isPersonal = msg.isPersonal;
+      newMsg.to = msg.to || userMsg.to;
     }
-    for (let i = 0; i < this._msgs.length; i++) {
-      if (this._msgs[i].id === id) {
-        this._msgs.splice(i, 1);
-        return true;
-      }
+    if (MessageList.validate(newMsg)) {
+      this._msgs.splice(this._msgs.lastIndexOf(userMsg), 1, newMsg);
+      return true;
     }
     return false;
   }
 
-  static _validate(msg = {}) {
+  remove(id = '') {
+    if (id === '' || +id < 0 || +id > +this.idCount) return false;
+    // та же проверка что и в edit
+    const userMsg = this._msgs.find(msg => msg.id === id);
+    if (userMsg.author !== this.user) {
+      return false;
+    }
+    this._msgs.splice(this._msgs.lastIndexOf(userMsg), 1);
+    return true;
+  }
+
+  static validate(msg = {}) {
     if (Object.keys(msg).length === 0) return false;
     let exampleMsg = {
       id: '',
@@ -224,27 +164,181 @@ class MessageList {
     return true;
   }
 
-  static addAll(arrMsg) {
+  addAll(arrMsg) {
     let invalidMsg = [];
-    let myCollect = [];
+    let myMsgs = [];
     for (let i = 0; i < arrMsg.length; i++) {
-      if (MessageList._validate(arrMsg[i])) {
-        myCollect.push(arrMsg[i]);
+      if (MessageList.validate(arrMsg[i])) {
+        myMsgs.push(arrMsg[i]);
       } else {
         invalidMsg.push(arrMsg[i]);
       }
     }
-    this.collection = myCollect;
+    this._msgs = myMsgs;
+    this.idCount = (+this._msgs[this._msgs.length - 1].id + 1).toString();
     return invalidMsg;
   }
 
-  static clear() {
-    this.collection = null;
+  clear() {
+    this._msgs = null;
+    this.idCount = 0;
     return true;
   }
 }
 
-let msgs = [
+class UserList {
+  constructor(users, activeUsers) {
+    this.users = users;
+    this.activeUsers = activeUsers;
+  }
+}
+
+class HeaderView {
+  constructor(id) {
+    this.element = document.getElementById(id);
+  }
+
+  display() {
+    this.element.innerHTML = `Вы вошли как ${myMsgList._user}`;
+  }
+}
+
+class MessageView {
+  constructor(id) {
+    this.element = document.getElementById(id);
+  }
+
+  display(arrMsg, currentUser) {
+    if (Object.keys(usersColors).length === 0) {
+      setUserColor(); // генерирует цвета для пользователей
+    }
+    this.element.innerHTML = '';
+    let msgStr = '';
+    for (let i = 0; i < arrMsg.length; i++) {
+      if (arrMsg[i].author === currentUser && !arrMsg[i].isPersonal) {
+        msgStr += makeReplace('my-msg', arrMsg[i]).replace('<i>FROM', `<i>${arrMsg[i].author}`);
+        continue;
+      }
+      if (arrMsg[i].isPersonal && arrMsg[i].author === currentUser) {
+        msgStr += makeReplace('my-personal-msg', arrMsg[i]).replace('<i>FROM', `<i>от вас для <span style="font-weight:bold">${arrMsg[i].to}</span>`);
+        continue;
+      }
+      if (arrMsg[i].isPersonal && arrMsg[i].to === currentUser) {
+        msgStr += makeReplace('for-me', arrMsg[i]).replace('<i>FROM', `<i>от ${arrMsg[i].author} для <span style="font-weight:bold">Вас</span>`);
+        continue;
+      } else {
+        msgStr += makeReplace('for-all', arrMsg[i]).replace('<i>FROM', `<i>${arrMsg[i].author}`);
+        continue;
+      }
+    }
+    this.element.innerHTML = msgStr;
+  }
+}
+
+class ActiveUsersView {
+  constructor(id) {
+    this.element = document.getElementById(id);
+  }
+
+  display(arrUser) {
+    if (Object.keys(usersColors).length === 0) {
+      setUserColor(); // генерирует цвета для пользователей
+    }
+    this.element.innerHTML = '';
+    let userStr = '';
+    for (let i = 0; i < arrUser.length; i++) {
+      let firstLetters = arrUser[i].slice(0, 2).toUpperCase();
+      userStr += document.getElementById('user')
+        .innerHTML
+        .replace('<p>ЛОГ', `<p>${firstLetters}`)
+        .replace('background-color', `background-color: ${usersColors[arrUser[i]]}`)
+        .replace('Логин пользователя', `${arrUser[i]}`);
+    }
+    this.element.innerHTML = userStr;
+  }
+}
+
+const addMessage = (text, isPersonal = false, to) => {
+  let msg = {
+    text: text,
+    isPersonal: isPersonal
+  };
+  if (isPersonal) {
+    msg.to = to;
+  }
+  if (myMsgList.add(msg)) {
+    showMessages();
+    return true;
+  }
+
+  return false;
+};
+
+const editMessage = (id, params) => {
+  if (myMsgList.edit(id, params)) {
+    showMessages();
+    return true;
+  }
+  return false;
+};
+
+const removeMessage = (id) => {
+  if (myMsgList.remove(id)) {
+    showMessages();
+    return true;
+  }
+  return false;
+};
+
+function showMessages(skip = 0, top = 10, filterConfig = {}) {
+  myMessageView.display(myMsgList.getPage(skip, top, filterConfig), myMsgList.user);
+  return true;
+}
+
+const showActiveUsers = () => {
+  myActiveUserList.display(activeUsers);
+  return true;
+};
+
+const setCurrenUser = (user) => {
+  myMsgList.user = user;
+  myHeader.display();
+  showMessages();
+  return true;
+};
+
+const makeReplace = (templateId, msg) => {
+  let firstLetters = msg.author.slice(0, 2).toUpperCase();
+  let str = document.getElementById(`${templateId}`)
+    .innerHTML.replace('<span>userText</span>', `<span>${msg.text}</span>`)
+    .replace('<p>ЛОГ', `<p>${firstLetters}`)
+    .replace('background-color', `background-color:${usersColors[msg.author]}`)
+    .replace('DATE', formatDate(msg.createdAt));
+  return str;
+};
+
+const formatDate = (date) => {
+  return `${addNull(date.getDate())}.${addNull(date.getMonth() + 1)}.${addNull(date.getFullYear())} ${addNull(date.getHours())}:${addNull(date.getMinutes())}`;
+};
+
+const addNull = (numb) => {
+  return (numb > 9) ? numb : `0${numb}`;
+};
+
+const randomColor = () => {
+  let a = Math.random() * 255;
+  let b = Math.random() * 255;
+  let c = Math.random() * 255;
+  return `rgb(${a}, ${b}, ${c})`;
+};
+
+const setUserColor = () => {
+  for (let i = 0; i < users.length; i++) {
+    usersColors[`${users[i]}`] = randomColor();
+  }
+};
+
+const msgs = [
   new Message({
     id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'Александр', isPersonal: false
   }),
@@ -255,7 +349,7 @@ let msgs = [
     id: '3', text: 'полно информировать пользователя', createdAt: new Date('2020-09-11T17:18:00'), author: 'София', isPersonal: false
   }),
   new Message({
-    id: '4', text: 'Извещатель автономный ИП 212-52Т предназначен для установки в бытовые, офисные, промышленные помещения. Незаменим при обнаружении задымленности окружающего воздуха, при котором выдается тревожный сигнал в виде мигания встроенного светодиода и длительных звуковых сигналов. Защищаемая площадь до 85 м2.', createdAt: new Date('2020-09-11T16:19:00'), author: 'Анна', isPersonal: true, to: 'Тимур'
+    id: '4', text: 'Извещатель автономный ИП 212-52Т предназначен для установки в бытовые, офисные, промышленные помещения. Незаменим при обнаружении задымленности окружающего воздуха, при котором выдается тревожный сигнал в виде мигания встроенного светодиода и длительных звуковых сигналов. Защищаемая площадь до 85 м2.', createdAt: new Date('2020-09-11T19:19:00'), author: 'Анна', isPersonal: true, to: 'Тимур'
   }),
   new Message({
     id: '5', text: 'Монтируется на потолок или стену, температурный диапазон от -10 до +55С.', createdAt: new Date('2020-09-05T16:18:00'), author: 'Мария', isPersonal: false
@@ -304,176 +398,25 @@ let msgs = [
     text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'Александр', isPersonal: true, to: 'Анастасия'
   })
 ];
-
-let myMsgList = new MessageList(msgs);
-
-let users = ['Максим','Артем','Михаил','Александр','Матвей','София','Анна','Мария','Ксения','Анастасия','Тимур','Елена','Ольга'];
-let activeUsers = ['Максим','Михаил','Матвей','Анна','Мария','Тимур'];
+const myMsgList = new MessageList(msgs);
+const users = ['Максим', 'Артем', 'Михаил', 'Александр', 'Матвей', 'София', 'Анна', 'Мария', 'Ксения', 'Анастасия', 'Тимур', 'Елена', 'Ольга'];
+const activeUsers = ['Максим', 'Михаил', 'Матвей', 'Анна', 'Мария', 'Тимур'];
+const myUserList = new UserList(users, activeUsers);
+const myHeader = new HeaderView('user-name');
+const myMessageView = new MessageView('message-list');
+const myActiveUserList = new ActiveUsersView('users');
 let usersColors = {};
+showMessages();
+showActiveUsers();
+setCurrenUser('Тимур');
 
-class UserList {
-  constructor (users, activeUsers) {
-    this.users = users;
-    this.activeUsers = activeUsers;
-  }
-}
-
-let myUserList = new UserList (users, activeUsers);
-
-class HeaderView {
-  constructor (id) {
-    this.element = document.getElementById(id)
-  }
-  display() {
-    this.element.innerHTML = `Вы вошли как ${myMsgList._user}`;
-  }
-}
-
-let myHeader = new HeaderView('user-name');
-
-class MessageView {
-  constructor (id) {
-    this.element = document.getElementById(id);
-  }
-
-  display(arrMsg, currentUser) {
-    if (Object.keys(usersColors).length === 0) {
-      setUserColor(); // генерирует цвета для пользователей
-    }
-    this.element.innerHTML = '';
-    let msgStr = ``
-    for (let i = 0; i < arrMsg.length; i++) {
-      let firstLetters = arrMsg[i].author.slice(0,2).toUpperCase();
-      if (arrMsg[i].author === currentUser && !arrMsg[i].isPersonal) {
-        msgStr += document.getElementById('my-msg')
-                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
-                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
-                                  .replace('<i>FROM', `<i>${arrMsg[i].author}`)
-                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
-                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
-        continue;
-      }
-      if (arrMsg[i].isPersonal && arrMsg[i].author === currentUser) {
-        msgStr += document.getElementById('my-personal-msg')
-                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
-                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
-                                  .replace('<i>FROM', `<i>от Вас для <span class="bold">${arrMsg[i].to}</span>`)
-                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
-                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
-        continue;
-      }
-      if (arrMsg[i].isPersonal && arrMsg[i].to === currentUser) {
-        msgStr += document.getElementById('for-me')
-                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
-                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
-                                  .replace('<i>FROM', `<i>от ${arrMsg[i].author} для вас`)
-                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
-                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
-        continue;
-      }
-      else {
-        msgStr += document.getElementById('for-all')
-                                  .innerHTML.replace('<span>userText</span>', `<span>${arrMsg[i].text}</span>`)
-                                  .replace('<i>FROM', `<i>${arrMsg[i].author}`)
-                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
-                                  .replace('background-color', `background-color:${usersColors[arrMsg[i].author]}`)
-                                  .replace('DATE', formatDate(arrMsg[i].createdAt));
-        continue;
-      }
-    }
-    this.element.innerHTML = msgStr;
-  }
-}
-
-let myMessageView = new MessageView('message-list');
-
-class ActiveUsersView {
-  constructor (id) {
-    this.element = document.getElementById(id); 
-  }
-  display(arrUser) {
-    if (Object.keys(usersColors).length === 0) {
-      setUserColor(); // генерирует цвета для пользователей
-    }
-    this.element.innerHTML = '';
-    let userStr = '';
-    for (let i = 0; i < arrUser.length; i++) {
-      let firstLetters = arrUser[i].slice(0,2).toUpperCase();
-      userStr += document.getElementById('user')
-                                  .innerHTML
-                                  .replace('<p>ЛОГ', `<p>${firstLetters}`)
-                                  .replace('background-color', `background-color: ${usersColors[arrUser[i]]}`)
-                                  .replace('Логин пользователя', `${arrUser[i]}`)
-    }
-    this.element.innerHTML = userStr;
-  }
-}
-
-let myActiveUserList = new ActiveUsersView ('users');
-
-addMessage = (text, isPersonal = false, to) => {
-  let msg = {
-    text: text,
-    isPersonal: isPersonal
-  }
-  if (isPersonal) {
-    msg.to = to;
-  }
-  myMsgList.add(msg);
-  showMessages();
-}
-
-editMessage = (id, params) => {
-  if(myMsgList.edit(id, params)) {
-    showMessages();
-  }
-}
-
-removeMessage = (id) => {
-  if(myMsgList.remove(id)) {
-    showMessages();
-  }
-}
-
-function showMessages  (skip = 0, top = 10, filterConfig = {})  {
-  myMessageView.display(myMsgList.getPage(arguments[0], arguments[1], arguments[2]), myMsgList.user);
-}
-
-showActiveUsers = () => {
-  myActiveUserList.display(activeUsers);
-}
-
-setCurrenUser = (user) => {
-  myMsgList._user = user;
-  myHeader.display();
-}
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-formatDate = (date) => {
-  return `${addNull(date.getDate())}.${addNull(date.getMonth()+1)}.${addNull(date.getFullYear())} ${addNull(date.getHours())}:${addNull(date.getMinutes())}`
-}
-
-addNull = (numb) => {
-  return (numb > 9) ? numb : `0${numb}`
-}
-
-randomColor = () => {
-  let a = Math.random()*255;
-  let b = Math.random()*255;
-  let c = Math.random()*255;
-  return `rgb(${a}, ${b}, ${c})`;
-}
-
-function setUserColor () {
-  for (let i = 0; i < users.length; i++) {
-    usersColors[`${users[i]}`] = randomColor();
-  }
-}
-
-
-
-
-
+/*
+ФИКСЫ:
+1. убрал ненужное поле colletction в MessageList (вместо него у меня _msgs)
+2. убрал лишний модуль для генерации id, теперь id - поле класса MessageList;
+3. передел get с помощью find;
+4. переделал add, edit, remove, addAll;
+5. привел в норм вид MessageView.display;
+6. добавил showMessages() в setCurrentUser;
+7. editMessage возвращает true при успшеном изменении сообщ и false в противном случае;
+*/
