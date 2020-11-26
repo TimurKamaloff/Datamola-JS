@@ -1,0 +1,10 @@
+.hide {
+    display: none;
+}
+.show {
+    display: block;
+}
+
+ul {
+    cursor: pointer;
+}
