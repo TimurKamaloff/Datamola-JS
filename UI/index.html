@@ -7,9 +7,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="shortcut icon" href="sources/title.png" type="image/x-icon">
     <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
-    <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script> 
-    <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
-    <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
 </head>
 <body>
     <header class="header">
@@ -18,7 +15,7 @@
         <a href="#" target="_blank">Список обновлений</a>
         <a href="#" target="_blank">О проекте</a>
     </header>
-
+    
     <div class="btns">
         <button class="download">Загрузить ещё ...</button>
         <div class="exit">
@@ -52,14 +49,29 @@
         <div class="filter">
             <div class="options">
                 <p>Фильтрация</p>
-                <input type="search" placeholder="По имени автора">
-                <button>По дате</button>
-                <input type="search" placeholder="По тексту"/>
+                <input id="author-filter" type="search" placeholder="По имени автора">
+                <input id="text-filter" type="search" placeholder="По тексту"/>
+                <div class="date-filter">
+                    <table>
+                        <tr>
+                            <td>По дате: </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                С:<input type="date">
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                По: <input type="date">
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <button id="clear-filter-options">Удалить все фильтры</button>
             </div>
         </div>
     </div>
-
-
     <footer class="footer">
         <a href="#" target="_blank">DatamolaChat</a>
         <a href="https://vk.com/timka_ufimka" target="_blank">Камалов Тимур</sa>
@@ -67,15 +79,14 @@
         <a href="#" target="_blank">17.11.2020</a>
     </footer>
 
-
     <template id="my-msg">
         <tr>
             <td>
                 <div class="my">
                     <div class="message">
                         <div class="icons">
-                            <span class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
-                            <span class="iconify" data-inline="false" data-icon="icomoon-free:pencil" data-flip="horizontal"></span>
+                            <span data-delete="id" class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
+                            <span data-edit="id" class="iconify" data-inline="false" data-icon="icomoon-free:pencil" data-flip="horizontal"></span>
                         </div>
                         <span>userText</span>
                         <div class="my-circle circle" style="background-color"><p>ЛОГ</p></div>
@@ -99,8 +110,8 @@
                 <div class="my">
                     <div class="message">
                         <div class="icons">
-                            <span class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
-                            <span class="iconify" data-inline="false" data-icon="icomoon-free:pencil" data-flip="horizontal"></span>
+                            <span data-delete="id" class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
+                            <span data-edit="id" class="iconify" data-inline="false" data-icon="icomoon-free:pencil" data-flip="horizontal"></span>
                         </div>
                         <span>userText</span>
                         <div class="my-circle circle" style="background-color"><p>ЛОГ</p></div>
