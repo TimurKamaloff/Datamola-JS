@@ -1,0 +1,112 @@
+@font-face {
+    font-family: NotoSans; 
+    src: url(fonts/NotoSans/NotoSansJP-Medium.otf); 
+    font-size: 12px;
+}
+@font-face {
+    font-family: OpenSans; 
+    src: url(fonts/OpenSans/OpenSans-Italic.ttf); 
+    font-size: var(--main-font-size);
+}
+:root {
+    --main-font-size: 14px;
+    --primary-font-size: 0.7rem;
+    --main-bgcolor: #F2CE1B;
+    --primary-bgcolor: #B38F0E;
+}
+html {
+    max-width: 2000px;
+}
+body {
+    font-family: NotoSans;
+    font-size: var(--main-font-size);
+    margin: 0;
+    padding: 0;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    font-size: var(--main-font-size)
+}
+a {
+    font-family: NotoSans;
+    text-decoration: none;
+    color: black;   
+}
+.header {
+    width:100%;
+    height:5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-bgcolor);
+}
+.header a {
+    margin: auto;
+}
+.footer {
+    width:100%;
+    height:5%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-bgcolor);
+    position: fixed; 
+    left: 0; 
+    bottom: 0; 
+}
+.footer a {
+    margin: auto;
+}
+.main-window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8rem;
+}
+.main-window .iconify {
+    color: var(--main-bgcolor);
+    font-size: 17rem;
+}
+.text {
+    display: flex;
+    margin-top: 1.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.text a {
+    margin-top: .5rem;
+    font-weight: bold;
+    text-decoration: underline;
+}
+@media (min-width: 720) and (min-width: 480){
+    :root {
+        --main-font-size: 7px;
+    }
+}
+@media (min-width: 1360px) and (min-width: 720px){
+    :root {
+        --main-font-size: 10px;
+    }
+}
+@media (min-width: 1440px), (min-height: 900px){
+    :root {
+        --main-font-size: 14px;
+    }
+}
+@media  (min-width: 1600px) and (min-width: 900px) {
+    :root {
+        --main-font-size: 12px;
+    }
+}
+@media  (min-width: 1920px) and (min-width: 1080px) {
+    :root {
+        --main-font-size: 14px;
+    }
+}
+@media  (min-width: 2560px) and (min-width: 1440px) {
+    :root {
+        --main-font-size: 14px;
+    }
+}

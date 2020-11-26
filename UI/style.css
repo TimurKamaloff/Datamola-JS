@@ -19,6 +19,9 @@
 html {
     max-width: 2000px;
 }
+input, button {
+    outline: none;
+}
 .iconify {
     width: calc(var(--main-font-size) * 2);
     height: calc(var(--main-font-size) * 2);
@@ -123,6 +126,7 @@ button:hover, input:hover {
 .user i {
     white-space: nowrap;
 }
+
 .circle {
     display: flex;
     margin: auto 0;
@@ -228,13 +232,16 @@ button:hover, input:hover {
     bottom: 6%;
 }
 .write-message input {
+    font-size: var(--main-font-size);
     margin: auto;
+    padding-left: 1rem;
     width: 40rem;
     height: 2.5rem;
     background-color: var(--main-bgcolor);
     border-radius: 2rem;
     border: 0;
 }
+
 .send-btn {
     width: 10%;
     height: 2.5rem;  
@@ -258,22 +265,42 @@ button:hover, input:hover {
     display: flex;
     flex-direction: column;
     width:100%;
-    height: 15rem;
+    height: 25rem;
     align-items: center;
     justify-content: center;
 }
-.choose-date input[type="date"] {
-    width: 10rem;
-}
 .options button, .options input {
-    margin: auto;
-    width: 10rem;
+    margin: 1rem auto 0 auto;
+    width: 15rem;
     height: 3rem;
     text-align: center;
-    background: var(--main-bgcolor);
+    padding: 1rem 0;
+    background-color: var(--main-bgcolor);
     border-radius: 65rem;
     border: 0;
     font-family: NotoSans;
+}
+.date-filter table {
+    margin-top: 1rem; 
+    width: 15rem;
+    border-radius: 2rem;
+    background-color: var(--main-bgcolor);
+}
+.date-filter input {
+    width:60%;
+    padding: 0 1rem;
+    background-color: var(--primary-bgcolor);
+    margin-right: 1rem;
+}
+.date-filter td {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+#clear-filter-options:hover {
+    background: var(--primary-bgcolor);
+    cursor: pointer;
+    transition: 0.3s;
 }
 .footer {
     width:100%;

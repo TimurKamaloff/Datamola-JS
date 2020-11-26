@@ -1,0 +1,71 @@
+#game-div {
+    display: flex;
+    flex-direction: column;
+}
+#game-div button{
+    width:100px;
+    height: 50px;
+    margin: 50px auto;
+}
+#game-div div {
+    text-align: center;
+}
+#field {
+    border-collapse: collapse; 
+    margin: auto;
+}
+#field td {
+    font-size: 48px;
+    font-weight: bold;
+    padding: 3px; 
+    border: 2px solid black;
+    text-align: center;
+    width: 100px;
+    height: 100px;
+}
+#field td:hover{
+    background-color: #c3c3c3;
+}
+#field td:active{
+    background-color: #929191
+}
+div {
+    font-size: 2rem;
+    font-family: 'Courier New', Courier, monospace;
+}
+img {
+    width: 48px;
+}
+button {
+    text-decoration: none;
+    outline: none;
+    display: inline-block;
+    background-color: #cac6c6;
+    margin: 10px 20px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid #535353;
+    border-radius: 8px;
+    font-family: 'Montserrat', sans-serif; 
+    color: black;
+    transition: .2s ease-in-out;
+  }
+  button:before {
+    content: "";
+    background: linear-gradient(90deg, rgba(255,255,255,.1), rgba(255,255,255,.5));
+    height: 50px;
+    width: 50px;
+    position: absolute;
+    top: -8px;
+    left: -75px;
+    transform: skewX(-45deg);
+  }
+  button:hover {
+    background-color: #e2dfdf;
+  }
+  button:hover:before {
+    left: 150px;
+    transition: .5s ease-in-out;
+  }
+
+
