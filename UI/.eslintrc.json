@@ -29,6 +29,8 @@
         "consistent-return" : "off",
         "no-shadow" : ["warn"],
         "no-restricted-syntax" : ["warn"],
-        "array-callback-return" : "off"
+        "array-callback-return" : "off",
+        "no-undef" : "off",
+        "no-unused-vars" : "off"
     }
 }

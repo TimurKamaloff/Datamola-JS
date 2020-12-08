@@ -26,6 +26,7 @@ input, button {
     width: calc(var(--main-font-size) * 2);
     height: calc(var(--main-font-size) * 2);
     color: var(--main-bgcolor);
+    
     padding-left: 1.5rem;
     cursor: pointer;
 }
@@ -186,6 +187,7 @@ button:hover, input:hover {
     background-color: var(--main-bgcolor);
     border-radius: 1rem;
     max-width: 25rem;
+    overflow-wrap: break-word;
 }
 .message i {
     margin: 0;
@@ -221,6 +223,20 @@ button:hover, input:hover {
 .icons {
     margin: auto 1rem;
 }
+.icons button {
+    padding: 0;
+    margin: .5rem 1rem;
+    height: 2rem;
+    width: 3rem;
+    z-index: 0;
+}
+.icons .iconify{
+    font-size: 1px;
+    height: 1rem;
+    width: 1rem;
+    padding: 0;
+    z-index: -1000;
+}
 .my .info {
     margin-left: 10rem;
 }
@@ -229,7 +245,7 @@ button:hover, input:hover {
     margin-bottom: 0rem;
     position: fixed;
     left: 25%;
-    bottom: 6%;
+    bottom: 5%;
 }
 .write-message input {
     font-size: var(--main-font-size);
@@ -241,7 +257,27 @@ button:hover, input:hover {
     border-radius: 2rem;
     border: 0;
 }
+.main-personal-div {
+    display: flex;
+    padding: 0 1rem;
+}
+.main-personal-div div{
+    padding: .5rem 1rem 0 0;
+}
 
+.personal-msg-input {
+    display: flex;
+    flex-direction: column;
+    padding-top: 1988888rem;
+}
+.personal-msg-input i {
+    font-family: 'OpenSans';
+    width: 100%;
+}
+.personal-msg-input .iconify {
+    width: var(--primary-font-size);
+    margin: -.6rem;
+}
 .send-btn {
     width: 10%;
     height: 2.5rem;  
@@ -297,6 +333,20 @@ button:hover, input:hover {
     align-items: center;
     justify-content: center;
 }
+.confirm-edit {
+    display: none;
+}
+#to {
+    display: flex;
+}
+.cancel-pers {
+    font-size: 1em;
+    font-weight: bold;
+    margin-left: auto;
+}
+.cancel-pers:hover {
+    text-decoration: underline;
+}
 #clear-filter-options:hover {
     background: var(--primary-bgcolor);
     cursor: pointer;
@@ -315,6 +365,157 @@ button:hover, input:hover {
 }
 .footer a {
     margin: auto;
+}
+.main-window-reg {
+    margin-top: 7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.main-window-reg .input {
+    margin: 1rem auto;
+    background-color: var(--main-bgcolor);
+    border: 0px;
+    border-radius: 1rem;
+    outline: none;
+    padding-left: 2rem;
+    width: 18rem;
+    height: 3rem;
+}
+input::placeholder {
+    color: black;
+    font-size: .8rem;
+}
+.regist-btn {
+    margin: 1rem auto;
+    background-color: var(--main-bgcolor);
+    border: 0;
+    border-radius: .9rem;
+    outline: none;
+    text-align: center;
+    width: 6rem;
+    height: 2rem;
+    cursor: pointer;
+}
+.regist-btn:hover {
+    background-color: var(--primary-bgcolor);
+}
+.main-window-reg .reg-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.main-window-reg .reg-info a {
+    text-decoration: underline;
+    font-weight: 800;
+}
+.main-window-reg .reg-info span {
+    margin: .5rem;
+    display: block;
+}
+
+
+.enter-window{
+    margin-top: 7rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.enter-window .input {
+    margin: 1rem auto;
+    background-color: var(--main-bgcolor);
+    border: 0px;
+    border-radius: 1rem;
+    outline: none;
+    padding-left: 2rem;
+    width: 18rem;
+    height: 3rem;
+}
+.enter-btn {
+    margin: 1rem auto;
+    background-color: var(--main-bgcolor);
+    border: 0;
+    border-radius: .9rem;
+    outline: none;
+    text-align: center;
+    width: 6rem;
+    height: 2rem;
+    cursor: pointer;
+}
+.enter-btn:hover {
+    background-color: var(--primary-bgcolor);
+}
+.enter-window .enter-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.enter-window .enter a {
+    text-decoration: underline;
+    font-weight: 800;
+}
+.enter-window .enter span {
+    margin: .5rem;
+    display: block;
+}
+.enter-window .enter-info a {
+    text-decoration: underline;
+    font-weight: 800;
+}
+.enter-window .enter-info span {
+    margin: .5rem;
+    display: block;
+}
+
+.error-window {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8rem;  
+}
+.error-window .iconify {
+    color: var(--main-bgcolor);
+    width: 10rem;
+    height: 12rem;
+}
+.error-window .text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 50rem;
+    justify-content: center;
+    margin-left: 1.5rem;
+    font-size: 1rem;
+    text-align: center;
+}
+.error-window a {
+    text-decoration: underline;
+}
+.exit-window {
+    display: flex;
+    flex-direction: column;
+}
+.invalid-input {
+    margin: 1rem auto;
+    background-color: var(--main-bgcolor);
+    border: .1rem solid red;
+    border-radius: 1rem;
+    outline: none;
+    padding-left: 2rem;
+    width: 18rem;
+    height: 3rem;
+}
+.invalid-info {
+    width: 19rem;
+    font-size: var(--primary-font-size);
+    font-style: italic;
+    margin-bottom: -.7rem;
+    font-family: OpenSans;
 }
 @media (min-width: 720) and (min-width: 480){
     :root {
