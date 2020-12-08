@@ -1,8 +1,164 @@
+import {
+  showMainAuth, showRegWindow, showExitWindow, showErrorWindow
+} from './showPage.js';
+window.showMainAuth = showMainAuth;
+window.showRegWindow = showRegWindow;
+window.showExitWindow = showExitWindow;
+window.showErrorWindow = showErrorWindow;
+
+class ChatApiService {
+  constructor(url) {
+    this.url = url;
+    this.getMessagesTimeout = null;
+  }
+
+  login(name, pass) {
+    let formData = new FormData();
+    formData.append('name', name);
+    formData.append('pass', pass);
+    fetch(`${this.url}/auth/login`, {
+      method: 'POST',
+      body: formData
+    }).then((res) => {
+      return res.json();
+    }).then((res) => {
+      if (res.token) {
+        localStorage.setItem('currentPage', 'main');
+        localStorage.setItem('token', res.token);
+        localStorage.setItem('currentUser', name);
+        location.reload();
+      } else {
+        let inp = document.querySelectorAll('input');
+        inp[0].classList = 'invalid-input';
+        inp[1].classList = 'invalid-input';
+        document.querySelectorAll('.invalid-info')[0].innerHTML = 'Вы ввели неверный логин или пароль';
+      }
+    });
+  }
+
+  registr(name, pass) {
+    let formData = new FormData();
+    formData.append('name', name);
+    formData.append('pass', pass);
+    fetch(`${this.url}/auth/register`, {
+      method: 'POST',
+      body: formData
+    }).then(() => {
+      localStorage.setItem('currentPage', 'enter');
+      location.reload();
+    });
+  }
+
+  getMessages = function (skip, top, filterConfig) {
+    if (this.getMessagesTimeout) {
+      clearTimeout(this.getMessagesTimeout);
+    }
+    let msgs = [];
+    let fullUrl = `${this.url}/messages?skip=${skip}&top=${top}`;
+
+    if (filterConfig.author) {
+      fullUrl += `&author=${filterConfig.author}`;
+    }
+    if (filterConfig.text) {
+      fullUrl += `&text=${filterConfig.text}`;
+    }
+    if (filterConfig.dateFrom) {
+      let date = filterConfig.dateFrom.replace('-', '');
+      date = date.replace('-', '');
+      fullUrl += `&dateFrom=${date}`;
+    }
+    if (filterConfig.dateTo) {
+      let date = filterConfig.dateTo.replace('-', '');
+      date = date.replace('-', '');
+      fullUrl += `&dateTo=${date}`;
+    }
+    return fetch(fullUrl, {
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  }
+
+  get() {
+    return fetch(`${this.url}/messages?skip=0&top=999999999999999&author=${localStorage.getItem('currentUser')}`, {
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  }
+
+  getActiveUsers() {
+    return fetch(`${this.url}/users`);
+  }
+
+  addMessage(text, author, isPersonal, to) {
+    let data = {
+      text: text,
+      isPersonal: isPersonal
+    };
+    if (data.isPersonal) {
+      data.to = to;
+    }
+    data = JSON.stringify(data);
+    return fetch(`${this.url}/messages`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      body: data
+    });
+  }
+
+  removeMessage(id) {
+    return fetch(`${this.url}/messages/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  }
+
+  editMessage(editedMsg) {
+    let data = {
+      text: editedMsg.text,
+      isPersonal: editedMsg.isPersonal
+    };
+    if (data.isPersonal) {
+      data.to = editedMsg.to;
+    }
+    data = JSON.stringify(data);
+    return fetch(`${this.url}/messages/${editedMsg.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      },
+      body: data
+    }).then(()=> {
+      myController.showMessages();
+    });
+  }
+
+  exit() {
+    return fetch(`${this.url}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json;charset=utf-8',
+        authorization: `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+  }
+}
+
 class MessageList {
   constructor() {
     this._user = null;
     this._msgs = [];
-    this.idCount = 20;
+    this.idCount = 25;
   }
 
   get user() {
@@ -11,37 +167,6 @@ class MessageList {
 
   set user(newUser) {
     this._user = newUser;
-  }
-
-  restore() {
-    let localArr = JSON.parse(localStorage.getItem('msgs'));
-    for (let i = 0; i < localArr.length; i++) {
-      let newMsg = new Message({
-        id: localArr[i]._id, text: localArr[i].text, createdAt: new Date(localArr[i]._createdAt), author: localArr[i]._author, isPersonal: localArr[i].isPersonal
-      });
-      if (localArr[i].isPersonal) {
-        newMsg.to = localArr[i].to;
-      }
-      this._msgs.push(newMsg);
-    }
-  }
-
-  save() {
-    localStorage.setItem('msgs', JSON.stringify(this._msgs));
-  }
-
-  registration(login) {
-    if (login.length > 3 && login.length < 12) {
-      users.push(login);
-    }
-  }
-
-  loginUser(login, password) {
-    if (users.includes(login) && password === 'password') {
-      showMessages();
-      setCurrenUser(login);
-      showActiveUsers();
-    }
   }
 
   getPage(skip = 0, top = 10, filterConfig = {}) {
@@ -144,9 +269,8 @@ class MessageList {
     let newMsg = new Message({
       id: userMsg.id, text: msg.text, createdAt: userMsg.createdAt, author: userMsg.author, isPersonal: userMsg.isPersonal
     });
-    if ('isPersonal' in msg) {
-      newMsg.isPersonal = msg.isPersonal;
-      newMsg.to = msg.to || userMsg.to;
+    if (newMsg.isPersonal) {
+      newMsg.to = userMsg.to;
     }
     if (MessageList.validate(newMsg)) {
       this._msgs.splice(this._msgs.lastIndexOf(userMsg), 1, newMsg);
@@ -157,7 +281,7 @@ class MessageList {
   }
 
   remove(id = '') {
-    if (id === '' || +id < 0 || +id > +this.idCount) return false;
+    if (id === '' || +id < 0) return false;
     // та же проверка что и в edit
     const userMsg = this._msgs.find(msg => msg.id === id);
     if (userMsg.author !== this.user) {
@@ -229,342 +353,459 @@ class Message {
     return this._author;
   }
 }
-if (localStorage.getItem('msgs') === null) {
-  const msgs = [
-    new Message({
-      id: '1', text: 'Как уже ясно из названия, цель', createdAt: new Date(), author: 'Александр', isPersonal: false
-    }),
-    new Message({
-      id: '2', text: 'такого материала – максимально', createdAt: new Date('2020-09-11T16:18:00'), author: 'Матвей', isPersonal: false
-    }),
-    new Message({
-      id: '3', text: 'полно информировать пользователя', createdAt: new Date('2020-09-11T17:18:00'), author: 'София', isPersonal: false
-    }),
-    new Message({
-      id: '4', text: 'Извещатель автономный ИП 212-52Т предназначен для установки в бытовые, офисные, промышленные помещения. Незаменим при обнаружении задымленности окружающего воздуха, при котором выдается тревожный сигнал в виде мигания встроенного светодиода и длительных звуковых сигналов. Защищаемая площадь до 85 м2.', createdAt: new Date('2020-09-11T19:19:00'), author: 'Анна', isPersonal: true, to: 'Тимур'
-    }),
-    new Message({
-      id: '5', text: 'Монтируется на потолок или стену, температурный диапазон от -10 до +55С.', createdAt: new Date('2020-09-05T16:18:00'), author: 'Мария', isPersonal: false
-    }),
-    new Message({
-      id: '6', text: 'afЧувствительность извещателя соответствует задымленности среды с оптической плотностью, дБ/м от 0,01 до 0,2. Напряжение питания от 7,5 до 10В. awfs', createdAt: new Date('2020-10-10T06:28:00'), author: 'Ксения', isPersonal: true, to: 'Тимур'
-    }),
-    new Message({
-      id: '7', text: 'Выравнивание текста по центру. Текст помещается по центру горизонтали окна браузера или контейнера, где расположен текстовый блок. Строки текста словно нанизываются на невидимую ось, которая проходит по центру веб-страницы. Подобный способ выравнивания активно используется в заголовках и различных подписях, вроде подрисуночных, он придает официальный и солидный вид оформлению текста. Во всех других случаях выравнивание по центру применяется редко по той причине, что читать большой объем такого текста неудобно.', createdAt: new Date('2020-10-10T16:18:00'), author: 'Анастасия', isPersonal: false
-    }),
-    new Message({
-      id: '8', text: 'Потребляемый ток в дежурном режиме не более 15 мкА. Габаритные размеры — 45х98 мм.', createdAt: new Date('2020-11-10T16:58:00'), author: 'Тимур', isPersonal: true, to: 'Cаня'
-    }),
-    new Message({
-      id: '9', text: 'afawfs', createdAt: new Date('2020-11-10T16:18:00'), author: 'Мария', isPersonal: false
-    }),
-    new Message({
-      id: '10', text: 'Аналогично значению right, если текст идёт слева направо и left, когда текст идёт справа налево', createdAt: new Date('2020-12-10T16:18:00'), author: 'Ольга', isPersonal: false
-    }),
-    new Message({
-      id: '11', text: 'afawfs', createdAt: new Date('2020-12-11T16:18:00'), author: 'Ксения', isPersonal: false
-    }),
-    new Message({
-      id: '12', text: 'Выравнивание текста по центру. Текст помещается по центру горизонтали окна браузера или контейнера, где расположен текстовый блок. Строки текста словно нанизываются на невидимую ось, которая проходит по центру веб-страницы. Подобный способ выравнивания активно используется в заголовках и различных подписях, вроде подрисуночных, он придает официальный и солидный вид оформлению текста. Во всех других случаях выравнивание по центру применяется редко по той причине, что читать большой объем такого текста неудобно.', createdAt: new Date('2020-12-12T16:18:00'), author: 'Анна', isPersonal: false
-    }),
-    new Message({
-      id: '13', text: 'afawfs', createdAt: new Date('2020-01-10T16:18:00'), author: 'author #12', isPersonal: false
-    }),
-    new Message({
-      id: '14', text: 'Не изменяет положение элемента.', createdAt: new Date('2019-01-08T16:18:00'), author: 'Матвей', isPersonal: true, to: 'Александр'
-    }),
-    new Message({
-      id: '15', text: 'afawfs', createdAt: new Date('2029-01-09T16:18:00'), author: 'Максим', isPersonal: false
-    }),
-    new Message({
-      id: '17', text: 'afawfs', createdAt: new Date('2011-02-10T16:18:00'), author: 'Александр', isPersonal: false
-    }),
-    new Message({
-      id: '18', text: 'test new getPage()', createdAt: new Date('2029-02-10T16:18:00'), author: 'Анастасия', isPersonal: true, to: 'Мария'
-    }),
-    // два невалидных сообщ
-    new Message({
-      id: '19', text: 'Наследует значение родителя', author: 'Максим', isPersonal: true, to: 'Мария'
-    }),
-    new Message({
-      text: 'test new getPage()', createdAt: new Date('2019-02-10T16:18:00'), author: 'Александр', isPersonal: true, to: 'Анастасия'
-    })
-  ];
-  localStorage.setItem('msgs', JSON.stringify(msgs));
-}
 
-if (localStorage.getItem('users') === null) {
-  const users = ['Максим', 'Артем', 'Михаил', 'Александр', 'Матвей', 'София', 'Анна', 'Мария', 'Ксения', 'Анастасия', 'Тимур', 'Елена', 'Ольга'];
-  localStorage.setItem('users', JSON.stringify(users));
-}
+window.myApi = new ChatApiService('https://jslabdb.datamola.com');
 
-if (localStorage.getItem('activeUsers') === null) {
-  const activeUsers = ['Максим', 'Михаил', 'Матвей', 'Анна', 'Мария', 'Тимур'];
-  localStorage.setItem('activeUsers', JSON.stringify(activeUsers));
-}
-class UserList {
-  constructor(users, activeUsers) {
-    this.users = JSON.parse(localStorage.getItem('users'));
-    this.activeUsers = JSON.parse(localStorage.getItem('activeUsers'));
-  }
-
-  save() {
-    localStorage.setItem('users', JSON.stringify(this.users));
-  }
-}
-
-class HeaderView {
-  constructor(id) {
-    this.element = document.getElementById(id);
-  }
-
-  display(currentUser) {
-    this.element.innerHTML = `Вы вошли как ${currentUser}`;
-  }
-}
-
-class MessageView {
-  constructor(id) {
-    this.element = document.getElementById(id);
-  }
-
-  display(arrMsg, currentUser) {
-    if (!localStorage.getItem('colors')) {
-      let obj = setUserColor();
-      localStorage.setItem('colors', JSON.stringify(obj));
+if (localStorage.getItem('currentPage') === 'main') {
+  showMainAuth();
+  window.randomColor = () => {
+    let a = Math.random() * 255;
+    let b = Math.random() * 255;
+    let c = Math.random() * 255;
+    return `rgb(${a}, ${b}, ${c})`;
+  };
+  const setUserColor = function () {
+    let usersColors = {};
+    let userArr = myApi.getActiveUsers();
+    userArr.then(res => {
+      return res.json();
+    }).then((res) => {
+      for (let user in res) {
+        let userName = res[user].name;
+        usersColors[userName] = randomColor();
+        localStorage.setItem('usersColors', JSON.stringify(usersColors));
+      }
+    });
+  };
+  class UserList {
+    constructor(users, activeUsers) {
+      this.users = JSON.parse(localStorage.getItem('users'));
+      this.activeUsers = JSON.parse(localStorage.getItem('activeUsers'));
     }
-    this.element.innerHTML = '';
-    let msgStr = '';
-    for (let i = 0; i < arrMsg.length; i++) {
-      if (arrMsg[i].author === currentUser && !arrMsg[i].isPersonal) {
-        msgStr += makeReplace('my-msg', arrMsg[i]).replace('<i>FROM', `<i>${arrMsg[i].author}`);
-        continue;
+
+    save() {
+      localStorage.setItem('users', JSON.stringify(this.users));
+    }
+  }
+
+  class HeaderView {
+    constructor(id) {
+      this.element = document.getElementById(id);
+    }
+
+    display(currentUser) {
+      if (localStorage.getItem('currentUser')) {
+        this.element.innerHTML = `Вы вошли как ${currentUser}`;
       }
-      if (arrMsg[i].isPersonal && arrMsg[i].author === currentUser) {
-        msgStr += makeReplace('my-personal-msg', arrMsg[i]).replace('<i>FROM', `<i>от вас для <span style="font-weight:bold">${arrMsg[i].to}</span>`);
-        continue;
-      }
-      if (arrMsg[i].isPersonal && arrMsg[i].to === currentUser) {
-        msgStr += makeReplace('for-me', arrMsg[i]).replace('<i>FROM', `<i>от ${arrMsg[i].author} для <span style="font-weight:bold">Вас</span>`);
-        continue;
-      } else {
-        msgStr += makeReplace('for-all', arrMsg[i]).replace('<i>FROM', `<i>${arrMsg[i].author}`);
-        continue;
+      if (localStorage.getItem('currentUser') == 'null' || localStorage.getItem('currentUser') == 'undefined') {
+        this.element.innerHTML = 'Вы не авторизованы';
       }
     }
-    this.element.innerHTML = msgStr;
-  }
-}
-
-class ActiveUsersView {
-  constructor(id) {
-    this.element = document.getElementById(id);
   }
 
-  display(arrUser, currentUser) {
-    if (!localStorage.getItem('colors')) {
-      let obj = setUserColor();
-      localStorage.setItem('colors', JSON.stringify(obj));
+  class MessageView {
+    constructor(id) {
+      this.element = document.getElementById(id);
     }
-    let color = JSON.parse(localStorage.getItem('colors'));
-    this.element.innerHTML = '';
-    let userStr = '';
-    for (let i = 0; i < arrUser.length; i++) {
-      let firstLetters = arrUser[i].slice(0, 2).toUpperCase();
-      if (arrUser[i] !== currentUser) {
-        userStr += document.getElementById('user')
-          .innerHTML
-          .replace('<p>ЛОГ', `<p>${firstLetters}`)
-          .replace('background-color', `background-color: ${color[arrUser[i]]}`)
-          .replace('Логин пользователя', `${arrUser[i]}`);
+
+    display(arrMsg, currentUser) {
+      if (!localStorage.getItem('usersColors')) {
+        let obj = setUserColor();
+        localStorage.setItem('usersColor', JSON.stringify(obj));
       }
+      this.element.innerHTML = '';
+      let msgStr = '';
+      for (let i = 0; i < arrMsg.length; i++) {
+        if (arrMsg[i].author === currentUser && !arrMsg[i].isPersonal) {
+          msgStr += makeReplace('my-msg', arrMsg[i]).replace('<i>FROM', `<i>${arrMsg[i].author}`);
+          continue;
+        }
+        if (arrMsg[i].isPersonal && arrMsg[i].author === currentUser) {
+          msgStr += makeReplace('my-personal-msg', arrMsg[i]).replace('<i>FROM', `<i>от вас для <span style="font-weight:bold">${arrMsg[i].to}</span>`);
+          continue;
+        }
+        if (arrMsg[i].isPersonal && arrMsg[i].to === currentUser) {
+          msgStr += makeReplace('for-me', arrMsg[i]).replace('<i>FROM', `<i>от ${arrMsg[i].author} для <span style="font-weight:bold">Вас</span>`);
+          continue;
+        } else {
+          msgStr += makeReplace('for-all', arrMsg[i]).replace('<i>FROM', `<i>${arrMsg[i].author}`);
+          continue;
+        }
+      }
+      this.element.innerHTML = msgStr;
     }
-    this.element.innerHTML = userStr;
-  }
-}
-
-class ChatController {
-  constructor() {
-    this.msgList = new MessageList();
-    this.userList = new UserList();
-    this.header = new HeaderView('user-name');
-    this.messageView = new MessageView('message-list');
-    this.activeUserList = new ActiveUsersView('users');
-    this.currentRecipient = null;
-    this.msgCount = 10;
-    this.currentFilter = {};
   }
 
-  addMessage = (text, isPersonal = false, to) => {
-    let msg = {
-      text: text,
-      isPersonal: isPersonal
+  class ActiveUsersView {
+    constructor(id) {
+      this.element = document.getElementById(id);
+    }
+
+    display(arrUser, currentUser) {
+      this.element.innerHTML = '';
+      let userStr = '';
+      for (let i = 0; i < arrUser.length; i++) {
+        let firstLetters = arrUser[i].slice(0, 2).toUpperCase();
+        let color = randomColor();
+        if (arrUser[i] !== currentUser) {
+          userStr += document.getElementById('user')
+            .innerHTML
+            .replace('<p>ЛОГ', `<p>${firstLetters}`)
+            .replace('background-color', `background-color: ${color}`)
+            .replace('Логин пользователя', `${arrUser[i]}`)
+            .replace('<i data-to="to"', `<i data-to=${arrUser[i]}`);
+        }
+      }
+      this.element.innerHTML = userStr;
+    }
+  }
+
+  const makeReplace = (templateId, msg) => {
+    let firstLetters = msg._author.slice(0, 2).toUpperCase();
+    let color = randomColor();
+    let str = document.getElementById(`${templateId}`)
+      .innerHTML.replace('<span>userText</span>', `<span>${msg.text}</span>`)
+      .replace('<p>ЛОГ', `<p>${firstLetters}`)
+      .replace('background-color', `background-color:${color}`)
+      .replace('DATE', formatDate(msg._createdAt))
+      .replace('button data-delete="id"', `button data-delete=${msg.id}`)
+      .replace('button data-edit="id"', `button data-edit=${msg.id}`);
+    return str;
+  };
+
+  const formatDate = (date) => {
+    return `${addNull(date.getDate())}.${addNull(date.getMonth() + 1)}.${addNull(date.getFullYear())} ${addNull(date.getHours())}:${addNull(date.getMinutes())}`;
+  };
+
+  const addNull = (numb) => {
+    return (numb > 9) ? numb : `0${numb}`;
+  };
+
+  function clearFilt() {
+    textFilter.value = '';
+    authorFilter.value = '';
+    dateFilter[0].value = dateFilter[1].value = '';
+    myController.currentFilter = {};
+    myController.msgCount = 10;
+    myController.showMessages();
+  }
+
+  const usersColors = {};
+  class ChatController {
+    constructor() {
+      this.header = new HeaderView('user-name');
+      this.messageView = new MessageView('message-list');
+      this.activeUserList = new ActiveUsersView('users');
+      this.currentRecipient = null;
+      this.msgCount = 10;
+      this.currentFilter = {};
+      this.currentEditMsg = {};
+      this.getMessagesTimeout = null;
+      this.activeUsersTimeout = null;
+    }
+
+    addMessage = (text, isPersonal = false, to) => {
+      let msg = myApi.addMessage(text, localStorage.getItem('currentuser'), isPersonal, to);
+      return true;
     };
-    if (isPersonal) {
-      msg.to = to;
+
+    editMessage = (msg) => {
+      myApi.editMessage(msg);
+      return true;
+    };
+
+    downloadMoreMsg = () => {
+      this.msgCount += 10;
+      this.showMessages(0, this.msgCount, this.currentFilter);
     }
-    if (this.msgList.add(msg)) {
-      this.showMessages();
+
+    removeMessage = (id) => {
+      myApi.removeMessage(id);
+      this.showMessages(0, this.msgCount, this.currentFilter);
+      return true;
+    };
+
+    showActiveUsers = () => {
+      if (this.activeUsersTimeout) {
+        clearTimeout(this.activeUsersTimeout);
+      }
+      let users = myApi.getActiveUsers();
+      let activeUsers = [];
+      users.then(res=> {
+        return res.json();
+      }).then(res=> {
+        res.forEach(element => {
+          if (element.isActive) {
+            activeUsers.push(element.name);
+          }
+        });
+        myController.activeUserList.display(activeUsers, localStorage.getItem('currentUser'));
+        this.activeUsersTimeout = setTimeout(()=>{
+          this.showActiveUsers();
+        }, 60 * 1000);
+      });
+      return true;
+    };
+
+    setCurrenUser = (user) => {
+      myApi.user = user;
+      this.header.display(localStorage.getItem('currentUser'));
+      localStorage.setItem('currentUser', user);
+      this.showActiveUsers();
+      this.showMessages(0, 10);
+      return true;
+    };
+
+    showMessages(skip = 0, top = 10, filterConfig = {}) {
+      if (this.getMessagesTimeout) {
+        clearTimeout(this.getMessagesTimeout);
+      }
+      let msgsArr = [];
+      let msgs = myApi.getMessages(skip, top, filterConfig);
+      msgs.then(res=> {
+        return res.json();
+      }).then(res => {
+        res.forEach(element => {
+          msgsArr.push(new Message({
+            id: element.id, text: element.text, createdAt: new Date(element.createdAt), author: element.author, isPersonal: element.isPersonal, to: element.to
+          }));
+        });
+        this.messageView.display(msgsArr.reverse(), localStorage.getItem('currentUser'));
+        this.getMessagesTimeout = setTimeout(()=>{
+          this.showMessages(skip, top, filterConfig);
+        }, 60 * 1000);
+      });
       return true;
     }
-    return false;
+  }
+
+  let msgInput = document.querySelector('.write-message input');
+  const activeUsersList = document.querySelector('.active-users');
+  const downloadMore = document.querySelector('.download');
+  const textFilter = document.getElementById('text-filter');
+  const authorFilter = document.getElementById('author-filter');
+  const dateFilter = document.querySelectorAll('.date-filter input');
+  const clearFilterOptions = document.getElementById('clear-filter-options');
+  const controlMyMsgs = document.getElementById('message-list');
+  let confirmEdit = document.querySelector('.confirm-edit');
+  const exitBtn = document.querySelector('.exit button');
+  let sendBtn = document.getElementsByClassName('send-btn')[0];
+  window.myController = new ChatController();
+
+  exitBtn.onclick = function () {
+    myController.setCurrenUser(null);
+    localStorage.setItem('currentPage', 'enter');
+    localStorage.setItem('token', null);
+    myApi.exit().then(()=> {
+      localStorage.removeItem('currentUser');
+      localStorage.setItem('currentPage', 'enter');
+      location.reload();
+    });
   };
 
-  editMessage = (id, params) => {
-    if (this.msgList.edit(id, params)) {
-      this.showMessages();
-      return true;
+  sendBtn.onclick = function () {
+    if (myController.currentRecipient) {
+      myController.addMessage(msgInput.value, true, myController.currentRecipient);
+      msgInput.value = '';
+      document.getElementById('to').innerHTML = '';
+      myController.currentRecipient = null;
+      myController.showMessages();
+    } else {
+      myController.addMessage(msgInput.value, false, null);
+      msgInput.value = '';
+      document.getElementById('to').innerHTML = '';
+      myController.showMessages();
     }
-    return false;
+    myController.showMessages();
   };
-
-  downloadMoreMsg = () => {
-    this.msgCount += 10;
-    this.showMessages(0, this.msgCount, this.currentFilter);
-  }
-
-  removeMessage = (id) => {
-    if (this.msgList.remove(id)) {
-      this.showMessages();
-      return true;
+  msgInput.addEventListener('keydown', (btn) => {
+    if (btn.keyCode === 13) {
+      if (myController.currentEditMsg.id) {
+        myController.currentEditMsg.text = msgInput.value;
+        myController.editMessage(myController.currentEditMsg);
+        msgInput.value = '';
+        myController.currentEditMsg = {};
+        sendBtn.style.display = 'block';
+        confirmEdit.style.display = 'none';
+      }
+      if (myController.currentRecipient) {
+        myController.addMessage(msgInput.value, true, myController.currentRecipient);
+        msgInput.value = '';
+        document.getElementById('to').innerHTML = '';
+        myController.currentRecipient = null;
+        myController.showMessages();
+      }
+      if (!myController.currentRecipient) {
+        myController.addMessage(msgInput.value, false, null);
+        msgInput.value = '';
+        document.getElementById('to').innerHTML = '';
+        myController.showMessages();
+        return;
+      }
+      myController.showMessages();
     }
-    return false;
-  };
+  });
 
-  showActiveUsers = () => {
-    this.activeUserList.display(this.userList.activeUsers, this.msgList.user);
-    return true;
-  };
-
-  setCurrenUser = (user) => {
-    this.msgList.user = user;
-    this.header.display(this.msgList.user);
-    this.showActiveUsers();
-    this.showMessages(0, 10);
-    return true;
-  };
-
-  showMessages(skip = 0, top = 10, filterConfig = {}) {
-    this.messageView.display(this.msgList.getPage(skip, top, filterConfig), this.msgList.user);
-    return true;
-  }
-}
-const makeReplace = (templateId, msg) => {
-  let firstLetters = msg._author.slice(0, 2).toUpperCase();
-  let color = JSON.parse(localStorage.getItem('colors'));
-  let str = document.getElementById(`${templateId}`)
-    .innerHTML.replace('<span>userText</span>', `<span>${msg.text}</span>`)
-    .replace('<p>ЛОГ', `<p>${firstLetters}`)
-    .replace('background-color', `background-color:${color[msg._author]}`)
-    .replace('DATE', formatDate(msg._createdAt))
-    .replace('<span data-delete="id"', `<span data-delete=${msg.id}`)
-    .replace('<span data-edit="id"', `<span data-edit=${msg.id}`);
-  return str;
-};
-
-const formatDate = (date) => {
-  return `${addNull(date.getDate())}.${addNull(date.getMonth() + 1)}.${addNull(date.getFullYear())} ${addNull(date.getHours())}:${addNull(date.getMinutes())}`;
-};
-
-const addNull = (numb) => {
-  return (numb > 9) ? numb : `0${numb}`;
-};
-
-const randomColor = () => {
-  let a = Math.random() * 255;
-  let b = Math.random() * 255;
-  let c = Math.random() * 255;
-  return `rgb(${a}, ${b}, ${c})`;
-};
-
-const setUserColor = () => {
-  let usersColors = {};
-  for (let i = 0; i < myController.userList.users.length; i++) {
-    usersColors[`${myController.userList.users[i]}`] = randomColor();
-  }
-  return usersColors;
-};
-
-function clearFilt() {
-  textFilter.value = '';
-  authorFilter.value = '';
-  dateFilter[0].value = dateFilter[1].value = '';
-  myController.currentFilter = {};
-  myController.showMessages();
-}
-
-let usersColors = {};
-let sendBtn = document.getElementsByClassName('send-btn')[0];
-let myController = new ChatController();
-myController.showMessages();
-myController.showActiveUsers();
-let msgInput = document.querySelector('.write-message input');
-let activeUsersList = document.querySelector('.active-users');
-let downloadMore = document.querySelector('.download');
-let textFilter = document.getElementById('text-filter');
-let authorFilter = document.getElementById('author-filter');
-let dateFilter = document.querySelectorAll('.date-filter input');
-let clearFilterOptions = document.getElementById('clear-filter-options');
-let controlMyMsgs = document.getElementById('message-list');
-
-sendBtn.onclick = function () {
-  myController.addMessage(msgInput.value);
-  msgInput.value = '';
-};
-msgInput.addEventListener('keydown', (btn) => {
-  if (btn.keyCode === 13) {
-    myController.addMessage(msgInput.value);
+  confirmEdit.onclick = function () {
+    myController.currentEditMsg.text = msgInput.value;
+    myController.editMessage(myController.currentEditMsg);
     msgInput.value = '';
-  }
-});
+    myController.currentEditMsg = {};
+    sendBtn.style.display = 'block';
+    confirmEdit.style.display = 'none';
+  };
 
-authorFilter.addEventListener('input', () => {
-  myController.currentFilter.author = authorFilter.value;
-  if (authorFilter.value === '') {
-    delete myController.currentFilter.author;
-  }
-  myController.showMessages(0, 10, myController.currentFilter);
-});
+  authorFilter.addEventListener('input', () => {
+    myController.currentFilter.author = authorFilter.value;
+    if (authorFilter.value === '') {
+      delete myController.currentFilter.author;
+    }
+    myController.showMessages(0, 10, myController.currentFilter);
+  });
 
-textFilter.addEventListener('input', () => {
-  myController.currentFilter.text = textFilter.value;
-  if (textFilter.value === '') {
-    delete myController.currentFilter.text;
-  }
-  myController.showMessages(0, 10, myController.currentFilter);
-});
+  textFilter.addEventListener('input', () => {
+    myController.currentFilter.text = textFilter.value;
+    if (textFilter.value === '') {
+      delete myController.currentFilter.text;
+    }
+    myController.showMessages(0, 10, myController.currentFilter);
+  });
 
-clearFilterOptions.addEventListener('click', clearFilt);
+  clearFilterOptions.addEventListener('click', clearFilt);
 
-downloadMore.addEventListener('click', myController.downloadMoreMsg);
-dateFilter[0].addEventListener('input', function () {
-  myController.currentFilter.dateFrom = dateFilter[0].value;
-  myController.showMessages(0, 10, myController.currentFilter);
-});
-dateFilter[1].addEventListener('input', function () {
-  if (dateFilter[1].value === '') {
-    delete myController.currentFilter.dateTo;
-  }
-  myController.currentFilter.dateTo = dateFilter[1].value;
-  myController.showMessages(0, 10, myController.currentFilter);
-});
+  downloadMore.addEventListener('click', myController.downloadMoreMsg);
+  dateFilter[0].addEventListener('input', function () {
+    myController.currentFilter.dateFrom = dateFilter[0].value;
+    myController.showMessages(0, 10, myController.currentFilter);
+  });
+  dateFilter[1].addEventListener('input', function () {
+    if (dateFilter[1].value === '') {
+      delete myController.currentFilter.dateTo;
+    }
+    myController.currentFilter.dateTo = dateFilter[1].value;
+    myController.showMessages(0, 10, myController.currentFilter);
+  });
 
-controlMyMsgs.addEventListener('click', function (event) {
-  let target = event.target;
-  if ('delete' in target.dataset) {
-    myController.removeMessage(target.dataset.delete);
-    myController.msgList.save();
-    return;
-  }
-  // if ('edit' in target.dataset) {
-  //   msgInput.addEventListener('input', function () {
-  //     msgInput.placeholder = '';
-  //     myController.editMessage(target.dataset.edit, { text: msgInput.value });
-      
-  //   });
-  //   myController.msgList.save();
-  //   msgInput.value = '';
-  //   return;  
-  // }
-});
-myController.setCurrenUser('Тимур');
+  controlMyMsgs.addEventListener('click', function (event) {
+    let target = event.target;
+    if ('delete' in target.dataset) {
+      myController.removeMessage(target.dataset.delete);
+    }
+    if ('edit' in target.dataset) {
+      sendBtn.style.display = 'none';
+      confirmEdit.style.display = 'block';
+      let editMessage = myApi.get(target.dataset.edit);
+      editMessage.then(res => {
+        return res.json();
+      }).then(res => {
+        for (let key in res) {
+          if (res[key].id === target.dataset.edit) {
+            let msg = res[key];
+            msgInput.value = msg.text;
+            myController.currentEditMsg = msg;
+          }
+        }
+      }).then(()=>{
+        myController.showMessages();
+      });
+    }
+    myController.showMessages();
+  });
+
+  activeUsersList.addEventListener('click', function (event) {
+    let target = event.target;
+    if (target.tagName === 'I') {
+      document.getElementById('to').innerHTML = `Вы пишите личное сообщение для ${target.dataset.to} <span class="cancel-pers">ОТМЕНИТЬ</span>`;
+      document.querySelector('.cancel-pers').onclick = function () {
+        myController.currentRecipient = null;
+        msgInput.value = '';
+        document.getElementById('to').innerHTML = '';
+      };
+      myController.currentRecipient = target.dataset.to;
+      msgInput = document.querySelector('.write-message input');
+    }
+  });
+  myController.setCurrenUser(localStorage.getItem('currentUser'));
+}
+/// ////// если не залогинен
+if (localStorage.getItem('currentPage') === 'registr' || !localStorage.getItem('currentPage')) {
+  showRegWindow();
+  const regBtn = document.querySelector('.regist-btn');
+  const regInputs = document.querySelectorAll('.input');
+  const a = document.querySelectorAll('.reg-info a');
+  a[0].addEventListener('click', function () {
+    localStorage.setItem('currentPage', 'enter');
+    location.reload();
+  });
+  a[1].addEventListener('click', function () {
+    localStorage.setItem('currentUser', undefined);
+    location.reload();
+  });
+  regBtn.addEventListener('click', function () {
+    if (regInputs[0].value === '') {
+      regInputs[0].classList = 'invalid-input';
+      document.querySelectorAll('.invalid-info')[0].innerHTML = 'Введите ваш логин';
+    }
+    if (regInputs[1].value === '' || regInputs[2].value === '') {
+      regInputs[1].classList = 'invalid-input';
+      regInputs[2].classList = 'invalid-input';
+      document.querySelectorAll('.invalid-info')[1].innerHTML = 'Нужно ввести пароль, а затем повторить его';
+    } else if (regInputs[1].value !== regInputs[2].value) {
+      regInputs[1].classList = 'invalid-input';
+      regInputs[2].classList = 'invalid-input';
+      document.querySelectorAll('.invalid-info')[1].innerHTML = 'Пароли не совпадают';
+    } else {
+      myApi.registr(regInputs[0].value, regInputs[1].value);
+    }
+  });
+  document.querySelectorAll('.main-window-reg')[0].addEventListener('keydown', (btn) => {
+    if (btn.keyCode === 13) {
+      if (regInputs[0].value === '') {
+        regInputs[0].classList = 'invalid-input';
+        document.querySelectorAll('.invalid-info')[0].innerHTML = 'Введите ваш логин';
+      }
+      if (regInputs[1].value === '' || regInputs[2].value === '') {
+        regInputs[1].classList = 'invalid-input';
+        regInputs[2].classList = 'invalid-input';
+        document.querySelectorAll('.invalid-info')[1].innerHTML = 'Нужно ввести пароль, а затем повторить его';
+      } else if (regInputs[1].value !== regInputs[2].value) {
+        regInputs[1].classList = 'invalid-input';
+        regInputs[2].classList = 'invalid-input';
+        document.querySelectorAll('.invalid-info')[1].innerHTML = 'Пароли не совпадают';
+      } else {
+        myApi.registr(regInputs[0].value, regInputs[1].value);
+      }
+    }
+  });
+}
+if (localStorage.getItem('currentPage') === 'enter') {
+  showExitWindow();
+  let enterInp = document.querySelectorAll('input');
+  let enterBtn = document.querySelectorAll('button');
+  let a = document.querySelectorAll('span a');
+
+  enterBtn[0].addEventListener('click', function () {
+    myApi.login(enterInp[0].value, enterInp[1].value);
+  });
+  a[0].addEventListener('click', function () {
+    localStorage.setItem('currentPage', 'registr');
+    location.reload();
+  });
+  a[1].addEventListener('click', function () {
+    localStorage.setItem('currentPage', 'main');
+    location.reload();
+  });
+  document.querySelector('.enter-window').addEventListener('keydown', (btn) => {
+    if (btn.keyCode === 13) {
+      myApi.login(enterInp[0].value, enterInp[1].value);
+    }
+  });
+}
+if (localStorage.getItem('currentPage') === 'error') {
+  showErrorWindow(localStorage.getItem('error'), localStorage.getItem('error'));
+  document.querySelectorAll('.text a')[0].onclick = function () {
+    localStorage.setItem('currentPage', 'main');
+    localStorage.setItem('error', 'null');
+    location.reload();
+  };
+}

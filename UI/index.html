@@ -9,169 +9,224 @@
     <script src="https://code.iconify.design/1/1.0.6/iconify.min.js"></script>
 </head>
 <body>
-    <header class="header">
-        <a href="#" target="_blank">v0.2.0</a>
-        <a href="#" target="_blank">Новости проекта</a>
-        <a href="#" target="_blank">Список обновлений</a>
-        <a href="#" target="_blank">О проекте</a>
-    </header>
+
+    <template id="reg-window">
+        <header class="header">
+            <a href="#" target="_blank">v0.2.0</a>
+            <a href="#" target="_blank">Новости проекта</a>
+            <a href="#" target="_blank">Список обновлений</a>
+            <a href="#" target="_blank">О проекте</a>
+        </header>
+        <div class="main-window-reg">
+            <input class="input" type="text" placeholder="Введите ваш логин">
+            <input class="input" type="password" placeholder="Введите ваш пароль">
+            <div class="invalid-info"></div>
+            <input class="input" type="password" placeholder="Повторите пароль">
+            <button class="regist-btn">Регистрация</button>
+            <div class="reg-info">
+                <span>Уже есть аккаунт? <a href="#">Войти</a></span>
+                <span><a href="#">На главную</a></span>
+            </div>
+        </div>
+        <footer class="footer">
+            <a href="#" target="_blank">DatamolaChat</a>
+            <a href="https://vk.com/timka_ufimka" target="_blank">Камалов Тимур</sa>
+            <a href="#" target="_blank">kamalow.t@yandex.by</a>
+            <a href="#" target="_blank">17.11.2020</a>
+        </footer>
+    </template>
+
+    <template id="main-window-authorize">
+        <template id="personal-msg-input">
+            <i>Вы пишите личное сообщение для TO</i>
+            <input type="text" placeholder="Введите ваше сообщение ...">
+        </template>
+        <template id="my-msg-input">
+            <input type="text" placeholder="Введите ваше сообщение ...">
+        </template>
     
-    <div class="btns">
-        <button class="download">Загрузить ещё ...</button>
-        <div class="exit">
-                <i id = 'user-name'></i>
-                <button>
-                    <span class="iconify" data-inline="false" data-icon="icomoon-free:exit"></span>
-                </button>
-        </div>
-    </div>
-
-    <div class="main-window">
-        <div class="active-users" id="users">
-           
-        </div>
-
-        <div class="chat">
-
-            <div class="messages">
-               <table id = 'message-list'>
-
-               </table>      
-            </div>
-
-            <div class="write-message">
-                <input type="text" placeholder="Введите ваше сообщение ...">
-                <button class="send-btn">
-                    <span class="iconify" data-inline="false" data-icon="icomoon-free:forward"></span>
-                </button>
-            </div>
-    </div>
-        <div class="filter">
-            <div class="options">
-                <p>Фильтрация</p>
-                <input id="author-filter" type="search" placeholder="По имени автора">
-                <input id="text-filter" type="search" placeholder="По тексту"/>
-                <div class="date-filter">
-                    <table>
-                        <tr>
-                            <td>По дате: </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                С:<input type="date">
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                По: <input type="date">
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-                <button id="clear-filter-options">Удалить все фильтры</button>
-            </div>
-        </div>
-    </div>
-    <footer class="footer">
-        <a href="#" target="_blank">DatamolaChat</a>
-        <a href="https://vk.com/timka_ufimka" target="_blank">Камалов Тимур</sa>
-        <a href="#" target="_blank">kamalow.t@yandex.by</a>
-        <a href="#" target="_blank">17.11.2020</a>
-    </footer>
-
-    <template id="my-msg">
-        <tr>
-            <td>
-                <div class="my">
-                    <div class="message">
-                        <div class="icons">
-                            <span data-delete="id" class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
-                            <span data-edit="id" class="iconify" data-inline="false" data-icon="icomoon-free:pencil" data-flip="horizontal"></span>
-                        </div>
-                        <span>userText</span>
-                        <div class="my-circle circle" style="background-color"><p>ЛОГ</p></div>
-                    </div>
-                    <table>
-                        <tr>
-                            <div class="my-info">
-                                <i>FROM, DATE</i>
+        <template id="my-msg">
+            <tr>
+                <td>
+                    <div class="my">
+                        <div class="message">
+                            <div class="icons">
+                                <button data-delete="id">
+                                    <span class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
+                                </button>
+                                <button data-edit="id">
+                                    <span class="iconify" data-inline="false" data-icon="icomoon-free:pencil"></span>
+                                </button>
                             </div>
-                        </tr>
-                    </table>
-                </div>
-            </td>
-        </tr>
-        
-    </template>
-
-    <template id="my-personal-msg">
-        <tr>
-            <td>
-                <div class="my">
-                    <div class="message">
-                        <div class="icons">
-                            <span data-delete="id" class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
-                            <span data-edit="id" class="iconify" data-inline="false" data-icon="icomoon-free:pencil" data-flip="horizontal"></span>
+                            <span>userText</span>
+                            <div class="my-circle circle" style="background-color"><p>ЛОГ</p></div>
                         </div>
-                        <span>userText</span>
-                        <div class="my-circle circle" style="background-color"><p>ЛОГ</p></div>
+                        <table>
+                            <tr>
+                                <div class="my-info">
+                                    <i>FROM, DATE</i>
+                                </div>
+                            </tr>
+                        </table>
                     </div>
-                    <table>
-                        <tr>
-                            <div class="my-info">
-                                <i>FROM, DATE</i>
+                </td>
+            </tr>
+            
+        </template>
+    
+        <template id="my-personal-msg">
+            <tr>
+                <td>
+                    <div class="my">
+                        <div class="message">
+                            <div class="icons">
+                                <button data-delete="id">
+                                    <span class="iconify" data-inline="false" data-icon="icomoon-free:bin"></span>
+                                </button>
+                                <button data-edit="id">
+                                    <span class="iconify" data-inline="false" data-icon="icomoon-free:pencil"></span>
+                                </button>
                             </div>
-                        </tr>
-                    </table>
+                            <span>userText</span>
+                            <div class="my-circle circle" style="background-color"><p>ЛОГ</p></div>
+                        </div>
+                        <table>
+                            <tr>
+                                <div class="my-info">
+                                    <i>FROM, DATE</i>
+                                </div>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </template>
+    
+        <template id="for-me">
+            <tr>
+                <td>
+                    <div class="full-message">
+                        <div class="message">
+                            <div class="circle" style="background-color"><p>ЛОГ</p></div>
+                            <span>userText</span>
+                            <div class="personal circle"></div>
+                        </div>
+                        <div class="info">
+                            <i>FROM, DATE</i>
+                        </div>
+                        
+                    </div>
+                </td>
+            </tr>
+        </template>
+    
+        <template id="for-all">
+            <tr>
+                <td>
+                    <div class="full-message">
+                        <div class="message">
+                            <div class="circle" style="background-color"><p>ЛОГ</p></div>
+                            <span>userText</span>
+                        </div>
+                        <div class="info">
+                            <i>FROM, DATE</i>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </template>
+    
+        <template id="user">
+            <div class="user">
+                <div class="circle" style="background-color"><p>ЛОГ</p></div>
+                <div>
+                    Логин пользователя<br/>
+                    <i data-to="to">Личное сообщение</i>
                 </div>
-            </td>
-        </tr>
-    </template>
-
-    <template id="for-me">
-        <tr>
-            <td>
-                <div class="full-message">
-                    <div class="message">
-                        <div class="circle" style="background-color"><p>ЛОГ</p></div>
-                        <span>userText</span>
-                        <div class="personal circle"></div>
-                    </div>
-                    <div class="info">
-                        <i>FROM, DATE</i>
-                    </div>
-                    
-                </div>
-            </td>
-        </tr>
-    </template>
-
-    <template id="for-all">
-        <tr>
-            <td>
-                <div class="full-message">
-                    <div class="message">
-                        <div class="circle" style="background-color"><p>ЛОГ</p></div>
-                        <span>userText</span>
-                    </div>
-                    <div class="info">
-                        <i>FROM, DATE</i>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </template>
-
-    <template id="user">
-        <div class="user">
-            <div class="circle" style="background-color"><p>ЛОГ</p></div>
-            <div>
-                Логин пользователя<br/>
-                <i>Личное сообщение</i>
+            </div>
+        </template>
+        <!-- <header class="header">
+            <a href="#" target="_blank">v0.2.0</a>
+            <a href="#" target="_blank">Новости проекта</a>
+            <a href="#" target="_blank">Список обновлений</a>
+            <a href="#" target="_blank">О проекте</a>
+        </header>
+    
+        <div class="btns">
+            <button class="download">Загрузить ещё ...</button>
+            <div class="exit">
+                    <i id="user-name"></i>
+                    <button>
+                        <span class="iconify" data-inline="false" data-icon="icomoon-free:exit"></span>
+                    </button>
             </div>
         </div>
+    
+        <div class="main-window">
+            <div class="active-users" id="users">
+               
+            </div>
+    
+            <div class="chat">
+    
+                <div class="messages">
+                   <table id ="message-list">
+    
+                   </table>      
+                </div>
+    
+                <div class="write-message">
+                    <div class="main-personal-div">
+                        <div class="personal-msg-input">
+                            <i id="to"></i>
+                            <input type="text" placeholder="Введите ваше сообщение ...">
+                        </div>
+                        <div>
+                            <button class="send-btn">
+                                <span class="iconify" data-inline="false" data-icon="icomoon-free:forward"></span>
+                            </button>
+                            <button class="confirm-edit">
+                                <span class="iconify" data-inline="false" data-icon="icomoon-free:checkmark"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+        </div>
+            <div class="filter">
+                <div class="options">
+                    <p>Фильтрация</p>
+                    <input id="author-filter" type="search" placeholder="По имени автора">
+                    <input id="text-filter" type="search" placeholder="По тексту"/>
+                    <div class="date-filter">
+                        <table>
+                            <tr>
+                                <td>По дате: </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    С:<input type="date">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    По: <input type="date">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <button id="clear-filter-options">Удалить все фильтры</button>
+                </div>
+            </div>
+        </div>
+        <footer class="footer">
+            <a href="#" target="_blank">DatamolaChat</a>
+            <a href="https://vk.com/timka_ufimka" target="_blank">Камалов Тимур</sa>
+            <a href="#" target="_blank">kamalow.t@yandex.by</a>
+            <a href="#" target="_blank">17.11.2020</a>
+        </footer> -->
     </template>
 
 </body>
-<script src="script.js"></script>
+<script src="script.js" type="module"></script>
+<script src="showPage.js" type="module"></script>
 </html>
